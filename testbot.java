@@ -16,15 +16,28 @@ public class testbot extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-//        DcMotorEx frontLeft = hardwareMap.get(DcMotorEx.class, "frontLeft");
-//        DcMotorEx bottomLeft = hardwareMap.get(DcMotorEx.class, "bottomLeft");
-//        DcMotorEx bottomRight = hardwareMap.get(DcMotorEx.class, "bottomRight");
-//        DcMotorEx frontRight = hardwareMap.get(DcMotorEx.class, "frontRight");
-        Servo servo = hardwareMap.get(Servo.class, "aServo");
+        DcMotorEx frontLeft = hardwareMap.get(DcMotorEx.class, "frontLeft");
+        DcMotorEx backLeft = hardwareMap.get(DcMotorEx.class, "backLeft");
+        DcMotorEx backRight = hardwareMap.get(DcMotorEx.class, "backRight");
+        DcMotorEx frontRight = hardwareMap.get(DcMotorEx.class, "frontRight");
+        Servo servo = hardwareMap.get(Servo.class, "servo1");
         waitForStart();
 
         while(opModeIsActive()) {
-            servo.setPosition(0);
+            double y = -gamepad1.left_stick_y;
+            double x = gamepad1.left_stick_x * 1.1;
+            double rx = gamepad1.right_stick_x;
+
+
+            double frontLeftPower = (y + x + rx);
+            double backLeftPower = (y - x + rx);
+            double frontRightPower = (y - x - rx);
+            double backRightPower = (y + x - rx);
+
+            frontLeft.setPower(-frontLeftPower);
+            backLeft.setPower(backLeftPower);
+            frontRight.setPower(frontRightPower);
+            backRight.setPower(backRightPower);
 
 //            float adjusted_left_stick_y = gamepad2.left_stick_y;
 //            float adjusted_left_stick_x = gamepad2.left_stick_x;
