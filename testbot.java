@@ -5,8 +5,10 @@ import java.util.HashMap;
 import java.lang.Math;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.exception.RobotCoreException;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -21,12 +23,23 @@ public class testbot extends LinearOpMode {
         DcMotorEx backRight = hardwareMap.get(DcMotorEx.class, "backRight");
         DcMotorEx frontRight = hardwareMap.get(DcMotorEx.class, "frontRight");
         Servo servo = hardwareMap.get(Servo.class, "servo1");
+
+        Gamepad currentGamepad = new Gamepad();
+        Gamepad prevGamepad = new Gamepad();
+
         waitForStart();
 
         while(opModeIsActive()) {
-            double y = -gamepad1.left_stick_y;
-            double x = gamepad1.left_stick_x * 1.1;
-            double rx = gamepad1.right_stick_x;
+
+            try {
+                prevGamepad.copy(currentGamepad);
+                currentGamepad.copy(gamepad1);
+            } catch (RobotCoreException e) {
+                telemetry.addLine("exception");
+            }
+            double y = -gamepad1.left_stick_y * 0.6;
+            double x = gamepad1.left_stick_x * 0.6;
+            double rx = gamepad1.right_stick_x * 0.6;
 
 
             double frontLeftPower = (y + x + rx);
@@ -38,6 +51,13 @@ public class testbot extends LinearOpMode {
             backLeft.setPower(backLeftPower);
             frontRight.setPower(frontRightPower);
             backRight.setPower(backRightPower);
+
+            if (currentGamepad.a && !prevGamepad.a) {
+                servo.setPosition(servo.getPosition() + 0.1);
+            }
+            if (currentGamepad.b && !prevGamepad.b) {
+                servo.setPosition(servo.getPosition() - 0.1);
+            }
 
 //            float adjusted_left_stick_y = gamepad2.left_stick_y;
 //            float adjusted_left_stick_x = gamepad2.left_stick_x;
