@@ -20,13 +20,21 @@ public class testCV extends LinearOpMode {
      * has been downloaded to the Robot Controller's SD FLASH memory, it must to be loaded using loadModelFromFile()
      * Here we assume it's an Asset.    Also see method initTfod() below .
      */
-    private static final String TFOD_MODEL_ASSET = "PowerPlay.tflite";
+    private static final String TFOD_MODEL_ASSET = "PowerPlay-v1.tflite";
     // private static final String TFOD_MODEL_FILE  = "/sdcard/FIRST/tflitemodels/CustomTeamModel.tflite";
 
     private static final String[] LABELS = {
-            "1 Bolt",
-            "2 Bulb",
-            "3 Panel"
+            "0 Sleeve pos1",
+            "1 Sleeve pos2",
+            "2 Sleeve pos3",
+            "3 Red Sleeve",
+            "4 Blue Sleeve",
+            "5 Wall Image-Wires",
+            "6 Wall Image-Powerlines",
+            "7 Wall Image-Circuitboard",
+            "8 Wall Image-Engine",
+            "9 Red Cone",
+            "10 Blue Cone"
     };
 
     private static final String VUFORIA_KEY =
@@ -50,6 +58,7 @@ public class testCV extends LinearOpMode {
 
     @Override
     public void runOpMode() {
+        HardwareController hwcontroller = new HardwareController(hardwareMap, this, telemetry);
         // The TFObjectDetector uses the camera frames from the VuforiaLocalizer, so we create that
         // first.
         initVuforia();
@@ -115,7 +124,8 @@ public class testCV extends LinearOpMode {
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+        parameters.camera = null;
+        // parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
 
         //  Instantiate the Vuforia engine
         vuforia = ClassFactory.getInstance().createVuforia(parameters);

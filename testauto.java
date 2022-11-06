@@ -16,6 +16,7 @@ public class testauto extends LinearOpMode {
 
     @Override
     public void runOpMode() {
+        HardwareController controller = new HardwareController(hardwareMap, this, telemetry);
         Servo servo = hardwareMap.get(Servo.class, "aServo");
         waitForStart();
 
