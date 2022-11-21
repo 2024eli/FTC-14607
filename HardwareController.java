@@ -38,6 +38,9 @@ public class HardwareController {
     public DcMotorEx backLeft;
     public DcMotorEx backRight;
     public DcMotorEx[] drivetrain;
+    public DcMotorEx odoRight;
+    public DcMotorEx odoLeft;
+    public DcMotorEx odoBack;
     // interactors
     public Servo claw;
     public DcMotorEx linearSlide;
@@ -56,9 +59,9 @@ public class HardwareController {
     public final double wheelDiameter = 3.0; // cm
     public final double wheelCircumference = Math.PI * wheelDiameter; // cm
     // other constants
-    public final static double TALLPOLE = 60;
-    public final static double MEDIUMPOLE = 40;
-    public final static double SHORTPOLE = 20;
+    public final static double TALLPOLE = 600; //ticks
+    public final static double MEDIUMPOLE = 400;
+    public final static double SHORTPOLE = 200;
     public final static double GROUND = 0;
 
     /**
@@ -81,9 +84,12 @@ public class HardwareController {
         for (DcMotorEx motor : drivetrain) {
             motor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         }
+//        odoRight = hardwareMap.get(DcMotorEx.class, "odoRight");
+//        odoLeft = hardwareMap.get(DcMotorEx.class, "odoLeft");
+//        odoBack = hardwareMap.get(DcMotorEx.class, "odoBack");
 
         claw = hardwareMap.get(Servo.class, "claw");
-        linearSlide = hardwareMap.get(DcMotorEx.class, "slide");
+        //linearSlide = hardwareMap.get(DcMotorEx.class, "slide");
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         BNO055IMU.Parameters imuparams = new BNO055IMU.Parameters();
@@ -94,16 +100,17 @@ public class HardwareController {
         imuparams.loggingTag = "IMU";
         imu.initialize(imuparams);
 
-        drivepidfcontroller = new PIDFController(0, 0, 0, 0);
+        drivepidfcontroller = new PIDFController(3, 5, 1, 0);
+        drivepidfcontroller.setIntegrationBounds(-5, 5);
         drivepidfcontroller.setTolerance(1);
-        slidepidfcontroller = new PIDFController(0, 0, 0, 0);
-        slidepidfcontroller.setTolerance(1);
+        slidepidfcontroller = new PIDFController(3, 0, 0, 0);
+        slidepidfcontroller.setTolerance(10);
 
-        frontRightTelemetry.addData("FR Motor", 0);
-        frontLeftTelemetry.addData("FL Motor", 0);
-        backRightTelemetry.addData("BR Motor", 0);
-        backLeftTelemetry.addData("BL Motor", 0);
-        drivetrainTelemetry = new Telemetry.Item[]{frontRightTelemetry, frontLeftTelemetry, backRightTelemetry, backLeftTelemetry};
+//        frontRightTelemetry = telemetry.addData("FR Motor", 0);
+//        frontLeftTelemetry = telemetry.addData("FL Motor", 0);
+//        backRightTelemetry = telemetry.addData("BR Motor", 0);
+//        backLeftTelemetry = telemetry.addData("BL Motor", 0);
+//        drivetrainTelemetry = new Telemetry.Item[]{frontRightTelemetry, frontLeftTelemetry, backRightTelemetry, backLeftTelemetry};
     }
 
     // ------------------------------------- MISC METHODS ------------------------------------------
@@ -113,7 +120,7 @@ public class HardwareController {
     public void resetEncoders() {
         for (DcMotorEx motor : drivetrain) motor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
 
-        for (Telemetry.Item telemetryMotor : drivetrainTelemetry) telemetryMotor.setValue("NO DATA");
+        //for (Telemetry.Item telemetryMotor : drivetrainTelemetry) telemetryMotor.setValue("NO DATA");
     }
 
     /**
@@ -151,7 +158,7 @@ public class HardwareController {
      * @param distance (centimeters)
      * @param speed (ticks per second)
      */
-    public void forwards(double distance, double speed) {
+    public void forward(double distance, double speed) {
         resetEncoders();
         for (DcMotorEx motor : drivetrain) {
             motor.setTargetPosition(calculateTicks(distance));
@@ -166,7 +173,7 @@ public class HardwareController {
      * @param distance (centimeters)
      * @param speed (ticks per second)
      */
-    public void backwards(double distance, double speed) {
+    public void backward(double distance, double speed) {
         resetEncoders();
         for (DcMotorEx motor : drivetrain) {
             motor.setTargetPosition(-calculateTicks(distance));
@@ -247,10 +254,19 @@ public class HardwareController {
 
     /**
      * Extend/retract slides to desired height using PIDFController
-     * @param height (centimeters)
+     * @param height (ticks)
      */
     public void setSlidePos(double height) {
         // TODO: implement this bruh
+        slidepidfcontroller.reset();
+        slidepidfcontroller.setSetPoint(height);
+        do {
+            int lastTickPos = linearSlide.getCurrentPosition();
+            double speed = slidepidfcontroller.calculate(lastTickPos);
+            linearSlide.setVelocity(speed);
+        } while(!slidepidfcontroller.atSetPoint());
+        for(DcMotorEx motor : drivetrain) motor.setVelocity(0);
+        slidepidfcontroller.reset();
     }
 
     /**

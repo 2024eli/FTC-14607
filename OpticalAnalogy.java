@@ -1,18 +1,19 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
 import java.util.List;
-@TeleOp(name = "vision")
-public class testCV extends LinearOpMode {
+@TeleOp(name = "vision auto")
+public class OpticalAnalogy extends LinearOpMode {
 
+    HardwareController control;
     /*
      * Specify the source for the Tensor Flow Model.
      * If the TensorFlowLite object model is included in the Robot Controller App as an "asset",
@@ -20,21 +21,22 @@ public class testCV extends LinearOpMode {
      * has been downloaded to the Robot Controller's SD FLASH memory, it must to be loaded using loadModelFromFile()
      * Here we assume it's an Asset.    Also see method initTfod() below .
      */
-    private static final String TFOD_MODEL_ASSET = "PowerPlay-v1.tflite";
-    // private static final String TFOD_MODEL_FILE  = "/sdcard/FIRST/tflitemodels/CustomTeamModel.tflite";
+    private static final String TFOD_MODEL_ASSET = "UltimateGoal.tflite";
+
+    //private static final String TFOD_MODEL_FILE  = "/sdcard/FIRST/tflitemodels/Powerplayn-v1.tflite";
 
     private static final String[] LABELS = {
-            "0 Sleeve pos1",
-            "1 Sleeve pos2",
-            "2 Sleeve pos3",
-            "3 Red Sleeve",
-            "4 Blue Sleeve",
-            "5 Wall Image-Wires",
-            "6 Wall Image-Powerlines",
-            "7 Wall Image-Circuitboard",
-            "8 Wall Image-Engine",
-            "9 Red Cone",
-            "10 Blue Cone"
+            "Sleeve-pos1",
+            "Sleeve-pos2",
+            "Sleeve-pos3",
+            "RedSleeve",
+            "BlueSleeve",
+            "WallImage-Wires",
+            "WallImage-Powerlines",
+            "WallImage-Circuitboard",
+            "WallImage-Engine",
+            "RedCone",
+            "BlueCone"
     };
 
     private static final String VUFORIA_KEY =
@@ -44,21 +46,13 @@ public class testCV extends LinearOpMode {
     "5ilYq1yWiP9R98pZdYnGwYStzkz+hZDHWluCwwduRF4blVS2W6jgC0RZfqMWT+7rG58RdpjjhzH7CYkcIW2R256kPTP9b85O" +
     "prB1eap";
 
-    /**
-     * {@link #vuforia} is the variable we will use to store our instance of the Vuforia
-     * localization engine.
-     */
-    private VuforiaLocalizer vuforia;
+    private VuforiaLocalizer vuforia; // store instance of vuforia localization engine
 
-    /**
-     * {@link #tfod} is the variable we will use to store our instance of the TensorFlow Object
-     * Detection engine.
-     */
-    private TFObjectDetector tfod;
+    private TFObjectDetector tfod; // store instance of tensorflow object detection engine
 
     @Override
     public void runOpMode() {
-        HardwareController hwcontroller = new HardwareController(hardwareMap, this, telemetry);
+        //control = new HardwareController(hardwareMap, this, telemetry);
         // The TFObjectDetector uses the camera frames from the VuforiaLocalizer, so we create that
         // first.
         initVuforia();
@@ -77,10 +71,13 @@ public class testCV extends LinearOpMode {
             // to artificially zoom in to the center of image.  For best results, the "aspectRatio" argument
             // should be set to the value of the images used to create the TensorFlow Object Detection model
             // (typically 16/9).
-            tfod.setZoom(1.0, 16.0/9.0);
+            tfod.setZoom(1.5, 16.0/9.0);
         }
 
-        /** Wait for the game to begin */
+        /* Wait for the game to begin */
+        telemetry.addLine(tfod == null ? "tfod null":tfod.toString());
+        telemetry.addLine(vuforia == null ? "vuforia null":vuforia.toString());
+
         telemetry.addData(">", "Press Play to start op mode");
         telemetry.update();
         waitForStart();
@@ -109,43 +106,37 @@ public class testCV extends LinearOpMode {
                         }
                         telemetry.update();
                     }
+                } else {
+                    telemetry.addLine("Tfod is null");
+                    telemetry.update();
                 }
             }
         }
     }
 
-    /**
-     * Initialize the Vuforia localization engine.
-     */
+
     private void initVuforia() {
-        /*
-         * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
-         */
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.camera = null;
+        parameters.cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
         // parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
 
-        //  Instantiate the Vuforia engine
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
     }
 
-    /**
-     * Initialize the TensorFlow Object Detection engine.
-     */
     private void initTfod() {
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
         tfodParameters.minResultConfidence = 0.75f;
         tfodParameters.isModelTensorFlow2 = true;
-        tfodParameters.inputSize = 300;
+        tfodParameters.inputSize = 640;
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
 
         // Use loadModelFromAsset() if the TF Model is built in as an asset by Android Studio
         // Use loadModelFromFile() if you have downloaded a custom team model to the Robot Controller's FLASH.
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABELS);
-        // tfod.loadModelFromFile(TFOD_MODEL_FILE, LABELS);
+        //tfod.loadModelFromFile(TFOD_MODEL_FILE, LABELS);
     }
 }

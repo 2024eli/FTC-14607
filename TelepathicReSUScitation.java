@@ -1,20 +1,14 @@
 package org.firstinspires.ftc.teamcode;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.lang.Math;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.exception.RobotCoreException;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-@TeleOp(name = "TeleOp")
-public class testbot extends LinearOpMode {
+@TeleOp(name = "Main Teleop")
+public class TelepathicReSUScitation extends LinearOpMode {
 
     @Override
     public void runOpMode() {
