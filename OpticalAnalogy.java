@@ -10,7 +10,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
 import java.util.List;
-@TeleOp(name = "vision auto")
+@TeleOp(name = "Vision Auto")
 public class OpticalAnalogy extends LinearOpMode {
 
     HardwareController control;
@@ -21,7 +21,7 @@ public class OpticalAnalogy extends LinearOpMode {
      * has been downloaded to the Robot Controller's SD FLASH memory, it must to be loaded using loadModelFromFile()
      * Here we assume it's an Asset.    Also see method initTfod() below .
      */
-    private static final String TFOD_MODEL_ASSET = "UltimateGoal.tflite";
+    private static final String TFOD_MODEL_ASSET = "PowerPlay(yolov5n)-v4.tflite";
 
     //private static final String TFOD_MODEL_FILE  = "/sdcard/FIRST/tflitemodels/Powerplayn-v1.tflite";
 
