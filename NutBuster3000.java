@@ -13,6 +13,7 @@ public class NutBuster3000 extends LinearOpMode {
     public void runOpMode() {
         Servo servo1 = hardwareMap.get(Servo.class, "servo1");
         Servo servo2 = hardwareMap.get(Servo.class, "servo2");
+        Servo servo3 = hardwareMap.get(Servo.class, "servo3");
 
         Gamepad currentGamepad = new Gamepad();
         Gamepad prevGamepad = new Gamepad();
@@ -40,7 +41,11 @@ public class NutBuster3000 extends LinearOpMode {
             else if(currentGamepad.y && !prevGamepad.y) {
                 servo2.setPosition(servo2.getPosition() - 0.05);
             }
-
+            if (currentGamepad.dpad_down && !prevGamepad.dpad_down) {
+                servo3.setPosition(servo3.getPosition() + 0.05);
+            } else if (currentGamepad.dpad_up && !prevGamepad.dpad_up) {
+                servo3.setPosition(servo3.getPosition() - 0.05);
+            }
             telemetry.addLine("Opmode Running");
             telemetry.update();
         }
