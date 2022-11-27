@@ -28,24 +28,34 @@ public class NutBuster3000 extends LinearOpMode {
             } catch (RobotCoreException e) {
                 telemetry.addLine("exception");
             }
-
-            if (currentGamepad.a && !prevGamepad.a) {
-                servo1.setPosition(servo1.getPosition() + 0.05);
+            if (currentGamepad.a) { //open claw
+                servo1.setPosition(1);
+            } else if (currentGamepad.b) { //close claw
+                servo1.setPosition(0);
             }
-            else if (currentGamepad.b && !prevGamepad.b) {
-                servo1.setPosition(servo1.getPosition() - 0.05);
-            }
-            if (currentGamepad.x && !prevGamepad.x) {
+            if (currentGamepad.x) {
                 servo2.setPosition(servo2.getPosition() + 0.05);
-            }
-            else if(currentGamepad.y && !prevGamepad.y) {
+            } else if (currentGamepad.y) {
                 servo2.setPosition(servo2.getPosition() - 0.05);
             }
-            if (currentGamepad.dpad_down && !prevGamepad.dpad_down) {
-                servo3.setPosition(servo3.getPosition() + 0.05);
-            } else if (currentGamepad.dpad_up && !prevGamepad.dpad_up) {
-                servo3.setPosition(servo3.getPosition() - 0.05);
-            }
+
+//            if (currentGamepad.a && !prevGamepad.a) {
+//                servo1.setPosition(servo1.getPosition() + 0.05);
+//            }
+//            else if (currentGamepad.b && !prevGamepad.b) {
+//                servo1.setPosition(servo1.getPosition() - 0.05);
+//            }
+//            if (currentGamepad.x && !prevGamepad.x) {
+//                servo2.setPosition(servo2.getPosition() + 0.05);
+//            }
+//            else if(currentGamepad.y && !prevGamepad.y) {
+//                servo2.setPosition(servo2.getPosition() - 0.05);
+//            }
+//            if (currentGamepad.dpad_down && !prevGamepad.dpad_down) {
+//                servo3.setPosition(servo3.getPosition() + 0.05);
+//            } else if (currentGamepad.dpad_up && !prevGamepad.dpad_up) {
+//                servo3.setPosition(servo3.getPosition() - 0.05);
+//            }
             telemetry.addLine("Opmode Running");
             telemetry.update();
         }

@@ -43,6 +43,8 @@ public class HardwareController {
     public DcMotorEx odoBack;
     // interactors
     public Servo claw;
+    public Servo armVertical;
+    public Servo armHorizontal;
     public DcMotorEx linearSlide;
     // sensor/controllers
     public BNO055IMU imu;
@@ -89,6 +91,8 @@ public class HardwareController {
 //        odoBack = hardwareMap.get(DcMotorEx.class, "odoBack");
 
         claw = hardwareMap.get(Servo.class, "claw");
+        armHorizontal = hardwareMap.get(Servo.class, "armHorizontal");
+        armVertical = hardwareMap.get(Servo.class, "armVertical");
         //linearSlide = hardwareMap.get(DcMotorEx.class, "slide");
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
@@ -273,13 +277,23 @@ public class HardwareController {
      * Sets claw to open position
      */
     public void clawOpen() {
-        this.claw.setPosition(1);
+        claw.setPosition(1);
     }
 
     /**
      * Sets claw to closed position
      */
     public void clawClose() {
-        this.claw.setPosition(0);
+        claw.setPosition(0);
+    }
+
+    public void setArmVertical(double position) {
+        double pos = Math.max(0, Math.min(position, 0.6)); // 0 < pos < 0.6
+        armVertical.setPosition(pos);
+    }
+
+    public void setArmHorizontal(double position) {
+        double pos = Math.max(0, Math.min(position, 0.6)); // 0 < pos < 0.6
+        armHorizontal.setPosition(pos);
     }
 }
