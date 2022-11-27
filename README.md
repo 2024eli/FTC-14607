@@ -3,8 +3,8 @@
 
 ### This Seasons Members
 **Captains** - Winston Gan, Evelyn Li
-**Returning Members** - Alan Jiang, Lindsay Hwang, Akul Dixit, Felix Howton, Aiden Cheong, Tanvi Pedireddi, Thrisha Sakamuri
-**New Members** - Shirdi Palle, Anush Devkar, Rocco Zhang, Aiden Cheong
+**Returning Members** - Alan Jiang, Akul Dixit, Felix Howton, Tanvi Pedireddi, Thrisha Sakamuri
+**New Members** - Shirdi Palle, Anush Devkar, Rocco Zhang, Aiden Cheong, Lindsay Hwang
 
 so uh yeah idk how to write a readme file
 
