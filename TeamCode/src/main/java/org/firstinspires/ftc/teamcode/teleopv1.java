@@ -12,10 +12,10 @@ import com.qualcomm.robotcore.util.Range;
 public class teleopv1 extends LinearOpMode {
      
     /* Declare OpMode members. */
-    public DcMotor frontLeft  = null;
-    public DcMotor  frontRight  = null;
-    public DcMotor  backLeft  = null;
-    public DcMotor backRight = null;
+    public DcMotorEx frontLeft  = null;
+    public DcMotorEx  frontRight  = null;
+    public DcMotorEx  backLeft  = null;
+    public DcMotorEx backRight = null;
 //    public DcMotor leftSlide = null;
 //    public DcMotor rightSlide = null;
 //    public Servo leftClaw    = null;
