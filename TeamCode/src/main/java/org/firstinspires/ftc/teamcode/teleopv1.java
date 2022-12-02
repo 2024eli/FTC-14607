@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
@@ -49,10 +49,10 @@ public class teleopv1 extends LinearOpMode {
 //        frontRight = hardwareMap.get(DcMotor.class, "frontRight");
 //        backLeft    = hardwareMap.get(DcMotor.class, "backLeft");
 //        backRight = hardwareMap.get(DcMotor.class, "backRight");
-        frontLeft  = hardwareMap.get(DcMotor.class, "FrontLeft");
-        frontRight = hardwareMap.get(DcMotor.class, "FrontRight");
-        backLeft    = hardwareMap.get(DcMotor.class, "BackLeft");
-        backRight = hardwareMap.get(DcMotor.class, "BackRight");
+        frontLeft  = hardwareMap.get(DcMotorEx.class, "FrontLeft");
+        frontRight = hardwareMap.get(DcMotorEx.class, "FrontRight");
+        backLeft    = hardwareMap.get(DcMotorEx.class, "BackLeft");
+        backRight = hardwareMap.get(DcMotorEx.class, "BackRight");
 //        leftSlide = hardwareMap.get(DcMotor.class, "LeftSlide");
 //        rightSlide= hardwareMap.get(DcMotor.class, "RightSlide");
 
@@ -65,9 +65,9 @@ public class teleopv1 extends LinearOpMode {
         // Pushing the left stick forward MUST make robot go forward. So adjust these two lines based on your first test drive.
         // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
 
-        frontLeft.setDirection(DcMotor.Direction.REVERSE);
+        frontLeft.setDirection(DcMotorEx.Direction.REVERSE);
 
-        backLeft.setDirection(DcMotor.Direction.REVERSE);
+        backLeft.setDirection(DcMotorEx.Direction.REVERSE);
 
 //        leftSlide.setDirection(DcMotor.Direction.REVERSE);
 //
