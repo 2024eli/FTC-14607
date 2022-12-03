@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.exception.RobotCoreException;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.Range;
 
 @TeleOp(name = "Robot: Simple POV", group = "Robot")
@@ -44,41 +46,49 @@ public class teleopv1 extends LinearOpMode {
         final double backdampspeedRatio = 0.45;
         final double backdampturnRatio = 0.3;
 
+        Gamepad currentGamepad = new Gamepad();
+        Gamepad prevGamepad = new Gamepad();
+
         // Define and Initialize Motors
-        frontLeft  = hardwareMap.get(DcMotorEx.class, "FrontLeft");
+        frontLeft = hardwareMap.get(DcMotorEx.class, "FrontLeft");
         frontRight = hardwareMap.get(DcMotorEx.class, "FrontRight");
-        backLeft    = hardwareMap.get(DcMotorEx.class, "BackLeft");
+        backLeft = hardwareMap.get(DcMotorEx.class, "BackLeft");
         backRight = hardwareMap.get(DcMotorEx.class, "BackRight");
-//        leftSlide = hardwareMap.get(DcMotor.class, "LeftSlide");
-//        rightSlide= hardwareMap.get(DcMotor.class, "RightSlide");
+        // leftSlide = hardwareMap.get(DcMotor.class, "LeftSlide");
+        // rightSlide= hardwareMap.get(DcMotor.class, "RightSlide");
 
-        /*frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);*/
+        /*
+         * frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+         * frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+         * backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+         * backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+         */
 
-        // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
-        // Pushing the left stick forward MUST make robot go forward. So adjust these two lines based on your first test drive.
-        // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
+        // To drive forward, most robots need the motor on one side to be reversed,
+        // because the axles point in opposite directions.
+        // Pushing the left stick forward MUST make robot go forward. So adjust these
+        // two lines based on your first test drive.
+        // Note: The settings here assume direct drive on left and right wheels. Gear
+        // Reduction or 90 Deg drives may require direction flips
 
         frontLeft.setDirection(DcMotorEx.Direction.REVERSE);
 
         backLeft.setDirection(DcMotorEx.Direction.REVERSE);
 
-//        leftSlide.setDirection(DcMotor.Direction.REVERSE);
-//
-//        rightSlide.setDirection(DcMotor.Direction.REVERSE);
-//
-//        // Define and initialize ALL installed servos.
-//        lift  = hardwareMap.get(Servo.class, "lift");
+        // leftSlide.setDirection(DcMotor.Direction.REVERSE);
+        //
+        // rightSlide.setDirection(DcMotor.Direction.REVERSE);
+        //
+        // // Define and initialize ALL installed servos.
+        // lift = hardwareMap.get(Servo.class, "lift");
         swivel = hardwareMap.get(Servo.class, "swivel");
-//        claw = hardwareMap.get(Servo.class, "claw");
-//        lift.setPosition(0);
-        swivel.setPosition(0);
-//        claw.setPosition(0);
+        // claw = hardwareMap.get(Servo.class, "claw");
+        // lift.setPosition(0);
+        swivel.setPosition(MID_SERVO);
+        // claw.setPosition(0);
 
         // Send telemetry message to signify robot waiting;
-        telemetry.addData(">", "Robot Ready.  Press Play.");    //
+        telemetry.addData(">", "Robot Ready.  Press Play."); //
         telemetry.update();
 
         // set motors to 0's
@@ -92,61 +102,60 @@ public class teleopv1 extends LinearOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-            //reversing the left stick y value
-            double y = Range.clip(-gamepad1.left_stick_y, -1,1);
-            //left stick x value
-            double x = Range.clip(-gamepad1.left_stick_x,-1,1);
-            //right stick x value
-            double rx = Range.clip(gamepad1.right_stick_x,-1,1);
 
+            prevGamepad.copy(currentGamepad);
+            currentGamepad.copy(gamepad1);
+            // reversing the left stick y value
+            double y = Range.clip(-gamepad1.left_stick_y, -1, 1);
+            // left stick x value
+            double x = Range.clip(-gamepad1.left_stick_x, -1, 1);
+            // right stick x value
+            double rx = Range.clip(gamepad1.right_stick_x, -1, 1);
 
-
-            double flPower = (y - x)*dampSpeedRatio + dampTurnRatio*rx;
-            double frPower = (y + x)*dampSpeedRatio - dampTurnRatio*rx;
-            double blPower = (y + x)*backdampspeedRatio + backdampturnRatio*rx;
-            double brPower = (y - x)*backdampspeedRatio - backdampturnRatio*rx;
+            double flPower = (y - x) * dampSpeedRatio + dampTurnRatio * rx;
+            double frPower = (y + x) * dampSpeedRatio - dampTurnRatio * rx;
+            double blPower = (y + x) * backdampspeedRatio + backdampturnRatio * rx;
+            double brPower = (y - x) * backdampspeedRatio - backdampturnRatio * rx;
 
             double maxFront = Math.max(flPower, frPower);
-            double maxBack = Math.max(blPower,brPower);
+            double maxBack = Math.max(blPower, brPower);
             double maxPower = Math.max(maxFront, maxBack);
 
-            if(maxPower > 1.0) {
+            if (maxPower > 1.0) {
                 flPower /= maxPower;
                 frPower /= maxPower;
                 blPower /= maxPower;
                 brPower /= maxPower;
             }
-            //finally moving the motors
+            // finally moving the motors
             frontLeft.setPower(flPower);
             backLeft.setPower(blPower);
             frontRight.setPower(frPower);
             backRight.setPower(brPower);
 
-
             // Use gamepad left & right Bumpers to open and close the claw
-            if (gamepad1.right_bumper) {
+            if (currentGamepad.right_bumper && !prevGamepad.right_bumper) {
                 telemetry.addLine("" + swivel.getPosition());
-                swivel.setPosition(swivel.getPosition() + 0.05);
-            }
-            else if (gamepad1.left_bumper) {
+                swivel.setPosition(swivel.getPosition() + 0.01);
+            } else if (currentGamepad.left_bumper && !prevGamepad.left_bumper) {
                 telemetry.addLine("" + swivel.getPosition());
-                swivel.setPosition(swivel.getPosition() - 0.05);
+                swivel.setPosition(swivel.getPosition() - 0.01);
             }
-//            if (gamepad1.dpad_up) {
-//                telemetry.addLine("" + lift.getPosition());
-//                lift.setPosition(lift.getPosition() + 0.05);
-//            }
-//            else if (gamepad1.dpad_down) {
-//                telemetry.addLine("" + lift.getPosition());
-//                if (lift.getPosition() >= 0.5) //threshold so arm doesn't go past -90 degrees
-//                    lift.setPosition(lift.getPosition() - 0.05);
-//            }
+            // if (gamepad1.dpad_up) {
+            // telemetry.addLine("" + lift.getPosition());
+            // lift.setPosition(lift.getPosition() + 0.05);
+            // }
+            // else if (gamepad1.dpad_down) {
+            // telemetry.addLine("" + lift.getPosition());
+            // if (lift.getPosition() >= 0.5) //threshold so arm doesn't go past -90 degrees
+            // lift.setPosition(lift.getPosition() - 0.05);
+            // }
 
-
-//          // Move both servos to new position.  Assume servos are mirror image of each other.
-            //clawOffset = Range.clip(clawOffset, -0.5, 0.5);
-            //swivel.setPosition(MID_SERVO);
-            //claw.setPosition(MID_SERVO);
+            // // Move both servos to new position. Assume servos are mirror image of each
+            // other.
+            // clawOffset = Range.clip(clawOffset, -0.5, 0.5);
+            // swivel.setPosition(MID_SERVO);
+            // claw.setPosition(MID_SERVO);
 
         }
     }
