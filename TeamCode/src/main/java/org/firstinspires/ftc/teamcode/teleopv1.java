@@ -8,27 +8,27 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
-@TeleOp(name="Robot: Simple POV", group="Robot")
+@TeleOp(name = "Robot: Simple POV", group = "Robot")
 public class teleopv1 extends LinearOpMode {
-     
-    /* Declare OpMode members. */
-    public DcMotorEx frontLeft  = null;
-    public DcMotorEx  frontRight  = null;
-    public DcMotorEx  backLeft  = null;
-    public DcMotorEx backRight = null;
-//    public DcMotor leftSlide = null;
-//    public DcMotor rightSlide = null;
-//    public Servo leftClaw    = null;
-//    public Servo rightClaw   = null;
 
+    /* Declare OpMode members. */
+    public DcMotorEx frontLeft = null;
+    public DcMotorEx frontRight = null;
+    public DcMotorEx backLeft = null;
+    public DcMotorEx backRight = null;
+    // public DcMotor leftSlide = null;
+    // public DcMotor rightSlide = null;
+    public Servo lift = null;
+    public Servo swivel = null;
+    public Servo claw = null;
 
     double clawOffset = 0;
     double clawoffset = 0;
 
-    public static final double MID_SERVO   =  0.5 ;
-    public static final double CLAW_SPEED  = 0.0003 ;                 // sets rate to move servo
-    public static final double ARM_UP_POWER    =  0.45 ;
-    public static final double ARM_DOWN_POWER  = -0.45 ;
+    public static final double MID_SERVO = 0.5;
+    public static final double CLAW_SPEED = 0.0003; // sets rate to move servo
+    public static final double ARM_UP_POWER = 0.45;
+    public static final double ARM_DOWN_POWER = -0.45;
 
     @Override
     public void runOpMode() {
@@ -45,10 +45,6 @@ public class teleopv1 extends LinearOpMode {
         final double backdampturnRatio = 0.3;
 
         // Define and Initialize Motors
-//        frontLeft  = hardwareMap.get(DcMotor.class, "frontLeft");
-//        frontRight = hardwareMap.get(DcMotor.class, "frontRight");
-//        backLeft    = hardwareMap.get(DcMotor.class, "backLeft");
-//        backRight = hardwareMap.get(DcMotor.class, "backRight");
         frontLeft  = hardwareMap.get(DcMotorEx.class, "FrontLeft");
         frontRight = hardwareMap.get(DcMotorEx.class, "FrontRight");
         backLeft    = hardwareMap.get(DcMotorEx.class, "BackLeft");
@@ -74,10 +70,12 @@ public class teleopv1 extends LinearOpMode {
 //        rightSlide.setDirection(DcMotor.Direction.REVERSE);
 //
 //        // Define and initialize ALL installed servos.
-//        leftClaw  = hardwareMap.get(Servo.class, "servo1");
-//        rightClaw = hardwareMap.get(Servo.class, "servo2");
-//        leftClaw.setPosition(MID_SERVO);
-//        rightClaw.setPosition(MID_SERVO);
+//        lift  = hardwareMap.get(Servo.class, "lift");
+        swivel = hardwareMap.get(Servo.class, "swivel");
+//        claw = hardwareMap.get(Servo.class, "claw");
+//        lift.setPosition(0);
+        swivel.setPosition(0);
+//        claw.setPosition(0);
 
         // Send telemetry message to signify robot waiting;
         telemetry.addData(">", "Robot Ready.  Press Play.");    //
@@ -126,21 +124,29 @@ public class teleopv1 extends LinearOpMode {
 
 
             // Use gamepad left & right Bumpers to open and close the claw
-            if (gamepad1.right_bumper)
-                clawOffset += CLAW_SPEED;
-            else if (gamepad1.left_bumper)
-                clawOffset -= CLAW_SPEED;
+            if (gamepad1.right_bumper) {
+                telemetry.addLine("" + swivel.getPosition());
+                swivel.setPosition(swivel.getPosition() + 0.05);
+            }
+            else if (gamepad1.left_bumper) {
+                telemetry.addLine("" + swivel.getPosition());
+                swivel.setPosition(swivel.getPosition() - 0.05);
+            }
+//            if (gamepad1.dpad_up) {
+//                telemetry.addLine("" + lift.getPosition());
+//                lift.setPosition(lift.getPosition() + 0.05);
+//            }
+//            else if (gamepad1.dpad_down) {
+//                telemetry.addLine("" + lift.getPosition());
+//                if (lift.getPosition() >= 0.5) //threshold so arm doesn't go past -90 degrees
+//                    lift.setPosition(lift.getPosition() - 0.05);
+//            }
 
-            if (gamepad1.a)
-                clawoffset += CLAW_SPEED;
-            else if (gamepad1.b)
-                clawoffset -= CLAW_SPEED;
 
-
-//            // Move both servos to new position.  Assume servos are mirror image of each other.
-//            clawOffset = Range.clip(clawOffset, -0.5, 0.5);
-//            leftClaw.setPosition(MID_SERVO + clawOffset);
-//            rightClaw.setPosition(MID_SERVO - clawoffset);
+//          // Move both servos to new position.  Assume servos are mirror image of each other.
+            //clawOffset = Range.clip(clawOffset, -0.5, 0.5);
+            //swivel.setPosition(MID_SERVO);
+            //claw.setPosition(MID_SERVO);
 
         }
     }
