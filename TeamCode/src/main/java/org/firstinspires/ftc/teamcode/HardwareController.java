@@ -43,7 +43,11 @@ public class HardwareController {
     public DcMotorEx odoBack;
     // interactors
     public Servo claw;
-    public DcMotorEx linearSlide;
+    public Servo lift;
+    public Servo swivel;
+    public DcMotorEx rightSlide;
+    public DcMotorEx leftSlide;
+    public DcMotorEx[] slides;
     // sensor/controllers
     public BNO055IMU imu;
     public PIDFController drivepidfcontroller;
@@ -59,10 +63,10 @@ public class HardwareController {
     public final double wheelDiameter = 3.0; // cm
     public final double wheelCircumference = Math.PI * wheelDiameter; // cm
     // other constants
-    public final static double TALLPOLE = 600; //ticks
-    public final static double MEDIUMPOLE = 400;
-    public final static double SHORTPOLE = 200;
-    public final static double GROUND = 0;
+    public final static int TALLPOLE = 600; //ticks
+    public final static int MEDIUMPOLE = 400;
+    public final static int SHORTPOLE = 200;
+    public final static int GROUND = 0;
 
     /**
      * Instantiate all variables related to the robot and the opmode, initialize imu and pid w/ parameters
@@ -74,10 +78,10 @@ public class HardwareController {
         opMode = opModeInstance;
         telemetry = telemetryInstance;
 
-        frontRight = hardwareMap.get(DcMotorEx.class, "frontRight");
-        frontLeft = hardwareMap.get(DcMotorEx.class, "frontLeft");
-        backRight = hardwareMap.get(DcMotorEx.class, "backRight");
-        backLeft = hardwareMap.get(DcMotorEx.class, "backLeft");
+        frontRight = hardwareMap.get(DcMotorEx.class, "FrontRight");
+        frontLeft = hardwareMap.get(DcMotorEx.class, "FrontLeft");
+        backRight = hardwareMap.get(DcMotorEx.class, "BackRight");
+        backLeft = hardwareMap.get(DcMotorEx.class, "BackLeft");
         frontLeft.setDirection(DcMotorEx.Direction.REVERSE);
         backLeft.setDirection(DcMotorEx.Direction.REVERSE);
         drivetrain = new DcMotorEx[]{frontRight, frontLeft, backRight, backLeft};
@@ -89,7 +93,13 @@ public class HardwareController {
 //        odoBack = hardwareMap.get(DcMotorEx.class, "odoBack");
 
         claw = hardwareMap.get(Servo.class, "claw");
-        //linearSlide = hardwareMap.get(DcMotorEx.class, "slide");
+        lift = hardwareMap.get(Servo.class, "lift");
+        swivel = hardwareMap.get(Servo.class, "swivel");
+        rightSlide = hardwareMap.get(DcMotorEx.class, "RightSlide");
+        leftSlide = hardwareMap.get(DcMotorEx.class, "LeftSlide");
+        slides = new DcMotorEx[]{rightSlide, leftSlide};
+        rightSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         BNO055IMU.Parameters imuparams = new BNO055IMU.Parameters();
@@ -256,30 +266,62 @@ public class HardwareController {
      * Extend/retract slides to desired height using PIDFController
      * @param height (ticks)
      */
-    public void setSlidePos(double height) {
+    public void setSlidePosPID(double height) {
         // TODO: implement this bruh
         slidepidfcontroller.reset();
         slidepidfcontroller.setSetPoint(height);
         do {
-            int lastTickPos = linearSlide.getCurrentPosition();
+            int lastTickPos = rightSlide.getCurrentPosition();
             double speed = slidepidfcontroller.calculate(lastTickPos);
-            linearSlide.setVelocity(speed);
+            rightSlide.setVelocity(speed);
+            leftSlide.setVelocity(speed);
         } while(!slidepidfcontroller.atSetPoint());
-        for(DcMotorEx motor : drivetrain) motor.setVelocity(0);
+        rightSlide.setVelocity(0);
+        leftSlide.setVelocity(0);
         slidepidfcontroller.reset();
+    }
+
+    /**
+     * Extend/retract slides to desired height using encoders
+     * @param height - (ticks)
+     */
+    public void setSlidePos(int height) {
+        height = Math.max(0, Math.min(height, 2000));
+        rightSlide.setTargetPosition(height);
+        leftSlide.setTargetPosition(-height);
+        for(DcMotorEx slide:slides) {
+            slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            slide.setVelocity(300);
+        }
+    }
+
+    /**
+     * Set arm lifter to pos, where 0.1 < pos < 1.0
+     * @param pos
+     */
+    public void setLift(double pos) {
+        double position = Math.max(0.1, Math.min(pos, 1));
+        lift.setPosition(position);
+    }
+
+    /**
+     * Sets arm swivel to pos
+     * @param pos 0.333 < pos < 1.000
+     */
+    public void setSwivel(double pos) {
+        double position = Math.max(0.333, Math.min(pos, 1.0));
+        swivel.setPosition(position);
     }
 
     /**
      * Sets claw to open position
      */
     public void clawOpen() {
-        this.claw.setPosition(1);
+        this.claw.setPosition(0);
     }
 
     /**
      * Sets claw to closed position
      */
-    public void clawClose() {
-        this.claw.setPosition(0);
-    }
+    public void clawClose() { this.claw.setPosition(0.3); }
 }

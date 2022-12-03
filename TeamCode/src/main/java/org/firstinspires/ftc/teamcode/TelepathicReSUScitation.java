@@ -9,53 +9,76 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp(name = "Main Teleop")
 public class TelepathicReSUScitation extends LinearOpMode {
+    HardwareController control;
+    final float slowSpeed = 0.3f;
+    final float normalSpeed = 0.8f;
 
     @Override
     public void runOpMode() {
-        DcMotorEx frontLeft = hardwareMap.get(DcMotorEx.class, "frontLeft");
-        DcMotorEx backLeft = hardwareMap.get(DcMotorEx.class, "backLeft");
-        DcMotorEx backRight = hardwareMap.get(DcMotorEx.class, "backRight");
-        DcMotorEx frontRight = hardwareMap.get(DcMotorEx.class, "frontRight");
-        //Servo servo = hardwareMap.get(Servo.class, "servo1");
+        control = new HardwareController(hardwareMap, this, telemetry);
 
-        Gamepad currentGamepad = new Gamepad();
-        Gamepad prevGamepad = new Gamepad();
+        Gamepad currentGamepad1 = new Gamepad();
+        Gamepad prevGamepad1 = new Gamepad();
+        Gamepad currentGamepad2 = new Gamepad();
+        Gamepad prevGamepad2 = new Gamepad();
+
+        boolean slowMode = false;
+        float speedFactor = slowSpeed;
+        control.frontLeft.setDirection(DcMotorEx.Direction.REVERSE);
+        control.backLeft.setDirection(DcMotorEx.Direction.REVERSE);
 
         waitForStart();
 
         while(opModeIsActive()) {
+            prevGamepad1.copy(currentGamepad1);
+            currentGamepad1.copy(gamepad1);
+            prevGamepad2.copy(currentGamepad2);
+            currentGamepad2.copy(gamepad2);
 
-            prevGamepad.copy(currentGamepad);
-            currentGamepad.copy(gamepad1);
-            double y = -gamepad1.left_stick_y * 0.6;
-            double x = gamepad1.left_stick_x * 0.6;
-            double rx = gamepad1.right_stick_x * 0.6;
+            // ----------------------------------- Gamepad 1----------------------------------------
+            // drivetrain
+            if (gamepad1.dpad_up) speedFactor = normalSpeed;
+            else if (gamepad1.dpad_down) speedFactor = slowSpeed;
 
+            float y = -gamepad1.left_stick_y * speedFactor;
+            float x = gamepad1.left_stick_x * speedFactor;
+            float rx = gamepad1.right_stick_x * speedFactor;
 
-            double frontLeftPower = (y + x + rx) * 0.5;
-            double backLeftPower = (y - x + rx) * -1.26 * 0.;
-            double frontRightPower = (y - x - rx);
-            double backRightPower = (y + x - rx) * 1.3;
+            float frontLeftPower = (y + x + rx) ;
+            float backLeftPower = (y - x + rx) * 1.25f;
+            float frontRightPower = (y - x - rx);
+            float backRightPower = (y + x - rx) * 1.3f;
 
-            frontLeft.setPower(-frontLeftPower);
-            backLeft.setPower(backLeftPower);
-            frontRight.setPower(frontRightPower);
-            backRight.setPower(backRightPower);
+            control.frontLeft.setPower(frontLeftPower);
+            control.backLeft.setPower(backLeftPower);
+            control.frontRight.setPower(frontRightPower);
+            control.backRight.setPower(backRightPower);
 
-//            if (currentGamepad.a && !prevGamepad.a) {
-//                servo.setPosition(servo.getPosition() + 0.1);
-//            }
-//            if (currentGamepad.b && !prevGamepad.b) {
-//                servo.setPosition(servo.getPosition() - 0.1);
-//            }
+            //slides
+            int slidePos = control.rightSlide.getCurrentPosition();
+            if (gamepad1.right_trigger > 0) slidePos += 10;
+            else if (gamepad1.left_trigger > 0) slidePos -= 10;
+            else if (gamepad1.x) slidePos = control.GROUND;
+            else if (gamepad1.a) slidePos = control.SHORTPOLE;
+            else if (gamepad1.b) slidePos = control.MEDIUMPOLE;
+            else if (gamepad1.y) slidePos = control.TALLPOLE;
+            control.setSlidePos(slidePos);
+            telemetry.addData("RSlide position", control.rightSlide.getCurrentPosition());
+            telemetry.addData("LSlide position", control.leftSlide.getCurrentPosition());
 
-//            float adjusted_left_stick_y = gamepad2.left_stick_y;
-//            float adjusted_left_stick_x = gamepad2.left_stick_x;
-//            float adjusted_right_stick_x = gamepad2.right_stick_x;
-//            bottomLeft.setPower(-adjusted_left_stick_y - adjusted_left_stick_x - adjusted_right_stick_x);
-//            bottomRight.setPower(-adjusted_left_stick_y + adjusted_left_stick_x + adjusted_right_stick_x);
-//            frontLeft.setPower(-adjusted_left_stick_y + adjusted_left_stick_x - adjusted_right_stick_x);
-//            frontRight.setPower(-adjusted_left_stick_y - adjusted_left_stick_x + adjusted_right_stick_x);
+            // ----------------------------------- Gamepad 2----------------------------------------
+            // claw
+            if (gamepad2.a) control.clawClose();
+            else if (gamepad2.b) control.clawOpen();
+
+            // swivel
+            if (gamepad2.right_bumper) control.setSwivel(control.swivel.getPosition() + 0.02);
+            else if (gamepad2.left_bumper) control.setSwivel(control.swivel.getPosition() - 0.02);
+
+            // lift
+            if (gamepad2.right_trigger > 0) control.setLift(control.lift.getPosition() + 0.02);
+            else if (gamepad2.left_trigger > 0) control.setLift(control.lift.getPosition() - 0.02);
+
 
             telemetry.addLine("Opmode Running");
             telemetry.update();

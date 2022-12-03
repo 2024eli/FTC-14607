@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 //import org.firstinspires.ftc.teamcode.hardware.Hardware;
 
-@Autonomous(name = "testauto")
+@Autonomous(name = "test auto")
 public class PenetratingPerpetrator extends LinearOpMode {
     HardwareController control;
 

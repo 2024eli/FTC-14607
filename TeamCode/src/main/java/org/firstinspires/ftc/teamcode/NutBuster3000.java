@@ -13,7 +13,8 @@ public class NutBuster3000 extends LinearOpMode {
     @Override
     public void runOpMode() {
         Servo armSwivel = hardwareMap.get(Servo.class, "swivel");
-        Servo armVertical = hardwareMap.get(Servo.class, "vertical");
+        Servo armVertical = hardwareMap.get(Servo.class, "lift");
+        Servo claw = hardwareMap.get(Servo.class, "claw");
         DcMotorEx leftSlide = hardwareMap.get(DcMotorEx.class, "LeftSlide");
         DcMotorEx rightSlide = hardwareMap.get(DcMotorEx.class, "RightSlide");
 
@@ -27,18 +28,19 @@ public class NutBuster3000 extends LinearOpMode {
 
             prevGamepad.copy(currentGamepad);
             currentGamepad.copy(gamepad1);
-
+//            armSwivel.setPosition(0.66);
+//            sleep(3000);
+//            armSwivel.setPosition(0.33);
+//            sleep(3000);
+//            armSwivel.setPosition(1);
+//            sleep(3000);
             try {
-                for(double i=0; i<1; i+=0.01) {
-                    armSwivel.setPosition(i);
-                    wait(500);
+                for(double i=0; i<=0.4; i+=0.03) {
+                    claw.setPosition(i);
+                    sleep(750);
                     telemetry.addData("servo pos", i);
                     telemetry.update();
                 }
-
-
-
-
 
             } catch(Exception e) {}
 
