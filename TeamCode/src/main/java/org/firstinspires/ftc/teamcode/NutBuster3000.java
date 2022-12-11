@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.exception.RobotCoreException;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -12,37 +13,30 @@ public class NutBuster3000 extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        Servo armSwivel = hardwareMap.get(Servo.class, "swivel");
-        Servo armVertical = hardwareMap.get(Servo.class, "lift");
-        Servo claw = hardwareMap.get(Servo.class, "claw");
-        DcMotorEx leftSlide = hardwareMap.get(DcMotorEx.class, "LeftSlide");
-        DcMotorEx rightSlide = hardwareMap.get(DcMotorEx.class, "RightSlide");
-
+        HardwareController control = new HardwareController(hardwareMap, this, telemetry);
+        control.rightSlide.setVelocity(300);
+        control.leftSlide.setVelocity(300);
+        control.rightSlide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        control.leftSlide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         Gamepad currentGamepad = new Gamepad();
         Gamepad prevGamepad = new Gamepad();
 
         waitForStart();
 
         while(opModeIsActive()) {
-
-
             prevGamepad.copy(currentGamepad);
             currentGamepad.copy(gamepad1);
-//            armSwivel.setPosition(0.66);
-//            sleep(3000);
-//            armSwivel.setPosition(0.33);
-//            sleep(3000);
-//            armSwivel.setPosition(1);
-//            sleep(3000);
-            try {
-                for(double i=0; i<=0.4; i+=0.03) {
-                    claw.setPosition(i);
-                    sleep(750);
-                    telemetry.addData("servo pos", i);
-                    telemetry.update();
-                }
 
-            } catch(Exception e) {}
+            int r = control.rightSlide.getCurrentPosition();
+            int l = control.leftSlide.getCurrentPosition();
+            telemetry.addData("RSlide position", control.rightSlide.getCurrentPosition());
+            telemetry.addData("LSlide position", control.leftSlide.getCurrentPosition());
+            int r1 = r + 50;
+            int l1 = l - 50;
+            telemetry.addData("setting r to", r1);
+            telemetry.addData("setting l to", l1);
+            control.rightSlide.setTargetPosition(r1);
+            control.leftSlide.setTargetPosition(l1);
 
 
             telemetry.addLine("Opmode Running");

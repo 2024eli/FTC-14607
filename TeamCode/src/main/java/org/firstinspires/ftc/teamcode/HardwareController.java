@@ -300,7 +300,7 @@ public class HardwareController {
      * @param pos
      */
     public void setLift(double pos) {
-        double position = Math.max(0.1, Math.min(pos, 1));
+        double position = Math.max(0.35, Math.min(pos, 1));
         lift.setPosition(position);
     }
 

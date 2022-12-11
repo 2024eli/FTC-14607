@@ -100,8 +100,8 @@ public class TelepathicReSUScitation extends LinearOpMode {
                 control.rightSlide.setPower(1);
 
                 telemetry.addLine("Opmode Running");
-                telemetry.update();
             }
+            telemetry.update();
         }
     }
 }
