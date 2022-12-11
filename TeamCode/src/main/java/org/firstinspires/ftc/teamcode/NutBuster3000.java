@@ -22,23 +22,30 @@ public class NutBuster3000 extends LinearOpMode {
         Gamepad prevGamepad = new Gamepad();
 
         waitForStart();
-
         while(opModeIsActive()) {
             prevGamepad.copy(currentGamepad);
             currentGamepad.copy(gamepad1);
-
             int r = control.rightSlide.getCurrentPosition();
             int l = control.leftSlide.getCurrentPosition();
-            telemetry.addData("RSlide position", control.rightSlide.getCurrentPosition());
-            telemetry.addData("LSlide position", control.leftSlide.getCurrentPosition());
-            int r1 = r + 50;
-            int l1 = l - 50;
-            telemetry.addData("setting r to", r1);
-            telemetry.addData("setting l to", l1);
+            telemetry.addData("right at", r);
+            telemetry.addData("left at", l);
+            int r1 = r - 5;
+            int l1 = l + 5;
+            telemetry.addData("setting right to", r1);
+            telemetry.addData("setting left to", l1);
             control.rightSlide.setTargetPosition(r1);
             control.leftSlide.setTargetPosition(l1);
-
-
+            control.rightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            control.leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            control.rightSlide.setVelocity(100);
+            control.leftSlide.setVelocity(100);
+            telemetry.update();
+            sleep(1000);
+            r = control.rightSlide.getCurrentPosition();
+            l = control.leftSlide.getCurrentPosition();
+            telemetry.addData("right at", r);
+            telemetry.addData("left at", l);
+            sleep(2000);
             telemetry.addLine("Opmode Running");
             telemetry.update();
         }

@@ -6,14 +6,14 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 @Autonomous(name = "test auto")
 public class PenetratingPerpetrator extends LinearOpMode {
-    HardwareController control;
+    HardwareController control = new HardwareController(hardwareMap, this, telemetry);
+
 
     @Override
     public void runOpMode() {
-        control = new HardwareController(hardwareMap, this, telemetry);
         waitForStart();
 
-        control.forward(10, 1000);
+        control.setSlidePos(10);
 
 
         telemetry.addLine("Opmode Running");

@@ -31,7 +31,8 @@ public class TelepathicReSUScitation extends LinearOpMode {
 
         waitForStart();
 
-        while (opModeIsActive()) {
+        double lastSwivelPos = 0.666;
+        while(opModeIsActive()) {
             prevGamepad1.copy(currentGamepad1);
             currentGamepad1.copy(gamepad1);
             prevGamepad2.copy(currentGamepad2);
@@ -74,8 +75,9 @@ public class TelepathicReSUScitation extends LinearOpMode {
             else if (gamepad2.b) control.clawOpen();
 
             // swivel
-            if (gamepad2.right_bumper) control.setSwivel(control.swivel.getPosition() + 0.02);
-            else if (gamepad2.left_bumper) control.setSwivel(control.swivel.getPosition() - 0.02);
+            if (gamepad2.right_bumper) lastSwivelPos += 0.02;
+            else if (gamepad2.left_bumper) lastSwivelPos -= 0.02;
+            control.setSwivel(lastSwivelPos);
 
             //lift
             if (gamepad2.right_trigger > 0) control.setLift(control.lift.getPosition() + 0.05);
