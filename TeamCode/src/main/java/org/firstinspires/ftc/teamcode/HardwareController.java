@@ -98,14 +98,15 @@ public class HardwareController {
         rightSlide = hardwareMap.get(DcMotorEx.class, "RightSlide");
         leftSlide = hardwareMap.get(DcMotorEx.class, "LeftSlide");
         slides = new DcMotorEx[]{rightSlide, leftSlide};
-        rightSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        leftSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        for (DcMotorEx slide:slides){
+            slide.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        }
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         BNO055IMU.Parameters imuparams = new BNO055IMU.Parameters();
         imuparams.angleUnit = BNO055IMU.AngleUnit.DEGREES;
         imuparams.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        imuparams.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
+        imuparams.calibrationDataFile = "BNO055IMUCalibration.json";
         imuparams.loggingEnabled = true;
         imuparams.loggingTag = "IMU";
         imu.initialize(imuparams);
@@ -131,16 +132,6 @@ public class HardwareController {
         for (DcMotorEx motor : drivetrain) motor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
 
         //for (Telemetry.Item telemetryMotor : drivetrainTelemetry) telemetryMotor.setValue("NO DATA");
-    }
-
-    /**
-     * For debugging; adds caption and message to telemetry and updates
-     * @param caption
-     * @param message
-     */
-    public void debugPrint(String caption, Object message) {
-        telemetry.addData(caption, message);
-        telemetry.update();
     }
 
     /**
@@ -286,12 +277,12 @@ public class HardwareController {
      * @param height - (ticks)
      */
     public void setSlidePos(int height) {
-        height = Math.max(0, Math.min(height, 2000));
+        height = Math.max(0, Math.min(height, 1500));
         rightSlide.setTargetPosition(height);
         leftSlide.setTargetPosition(-height);
         for(DcMotorEx slide:slides) {
             slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            slide.setVelocity(300);
+            slide.setVelocity(50);
         }
     }
 

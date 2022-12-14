@@ -12,8 +12,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 @TeleOp(name = "Main Teleop")
 public class TelepathicReSUScitation extends LinearOpMode {
     HardwareController control;
-    final float slowSpeed = 0.3f;
-    final float normalSpeed = 0.8f;
+    final float slowSpeed = 0.5f;
+    final float normalSpeed = 0.9f;
 
     @Override
     public void runOpMode() {
@@ -48,9 +48,9 @@ public class TelepathicReSUScitation extends LinearOpMode {
             float rx = gamepad1.right_stick_x * speedFactor;
 
             float frontLeftPower = (y + x + rx);
-            float backLeftPower = (y - x + rx) * 1.25f;
+            float backLeftPower = (y - x + rx) * 1.3f;
             float frontRightPower = (y - x - rx);
-            float backRightPower = (y + x - rx) * 1.3f;
+            float backRightPower = (y + x - rx) * 1.35f;
 
             control.frontLeft.setPower(frontLeftPower);
             control.backLeft.setPower(backLeftPower);
@@ -59,8 +59,8 @@ public class TelepathicReSUScitation extends LinearOpMode {
 
             //slides
             int slidePos = control.rightSlide.getCurrentPosition();
-            if (gamepad1.right_trigger > 0) slidePos += 10;
-            else if (gamepad1.left_trigger > 0) slidePos -= 10;
+            if (gamepad1.right_trigger > 0) slidePos += 5;
+            else if (gamepad1.left_trigger > 0) slidePos -= 5;
             else if (gamepad1.x) slidePos = control.GROUND;
             else if (gamepad1.a) slidePos = control.SHORTPOLE;
             else if (gamepad1.b) slidePos = control.MEDIUMPOLE;
@@ -78,14 +78,15 @@ public class TelepathicReSUScitation extends LinearOpMode {
             if (gamepad2.right_bumper) lastSwivelPos += 0.02;
             else if (gamepad2.left_bumper) lastSwivelPos -= 0.02;
             control.setSwivel(lastSwivelPos);
+            telemetry.addData("Swivel position", lastSwivelPos);
 
             //lift
-            if (gamepad2.right_trigger > 0) control.setLift(control.lift.getPosition() + 0.05);
-            else if (gamepad2.left_trigger > 0) control.setLift(control.lift.getPosition() - 0.05);
+            double liftPos = control.lift.getPosition();
+            if (gamepad2.right_trigger > 0) control.setLift(liftPos + 0.05);
+            else if (gamepad2.left_trigger > 0) control.setLift(liftPos - 0.05);
+            telemetry.addData("Lift position", liftPos);
 
-            //slides alex's
-//            control.rightSlide.setPower(gamepad2.left_stick_y);
-//            control.leftSlide.setPower(gamepad2.left_stick_y);
+            // slides w/ setPower
             if (gamepad2.left_stick_y > 0) {
                 control.leftSlide.setTargetPosition(control.leftSlide.getCurrentPosition() - 500);
                 control.leftSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -100,9 +101,8 @@ public class TelepathicReSUScitation extends LinearOpMode {
                 control.rightSlide.setTargetPosition(control.rightSlide.getCurrentPosition() - 500);
                 control.rightSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 control.rightSlide.setPower(1);
-
-                telemetry.addLine("Opmode Running");
             }
+
             telemetry.update();
         }
     }
