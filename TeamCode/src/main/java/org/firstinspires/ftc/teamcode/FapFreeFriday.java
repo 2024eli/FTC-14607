@@ -16,29 +16,28 @@ public class FapFreeFriday extends LinearOpMode {
         Servo armSwivel = hardwareMap.get(Servo.class, "swivel");
         Servo armVertical = hardwareMap.get(Servo.class, "lift");
         Servo claw = hardwareMap.get(Servo.class, "claw");
-        DcMotorEx leftSlide = hardwareMap.get(DcMotorEx.class, "LeftSlide");
-        DcMotorEx rightSlide = hardwareMap.get(DcMotorEx.class, "RightSlide");
-        DcMotorEx tm = hardwareMap.get(DcMotorEx.class, "testmotor");
-        tm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        tm.setVelocity(10);
-
+        DcMotorEx lS = hardwareMap.get(DcMotorEx.class, "LeftSlide");
+        DcMotorEx rS = hardwareMap.get(DcMotorEx.class, "RightSlide");
 
         Gamepad currentGamepad = new Gamepad();
         Gamepad prevGamepad = new Gamepad();
 
         HardwareController control = new HardwareController(hardwareMap, this, telemetry);
         waitForStart();
+        rS.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rS.setVelocity(200);
+        lS.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        lS.setVelocity(10);
         while(opModeIsActive()) {
-            int r = tm.getCurrentPosition();
+            int l = lS.getCurrentPosition();
+            int r = rS.getCurrentPosition();
             telemetry.addData("at", r);
-            int r1 = r - 5;
+            telemetry.addData("at l", l);
+            int l1 = -188;
+            int r1 = -500;
             telemetry.addData("setting to", r1);
             control.rightSlide.setTargetPosition(r1);
-            telemetry.update();
-            sleep(1000);
-            r = control.rightSlide.getCurrentPosition();
-            telemetry.addData("right at", r);
-            sleep(2000);
+            control.leftSlide.setTargetPosition(l1);
             telemetry.addLine("Opmode Running");
             telemetry.update();
         }

@@ -95,8 +95,8 @@ public class HardwareController {
         claw = hardwareMap.get(Servo.class, "claw");
         lift = hardwareMap.get(Servo.class, "lift");
         swivel = hardwareMap.get(Servo.class, "swivel");
-        rightSlide = hardwareMap.get(DcMotorEx.class, "RightSlide");
-        leftSlide = hardwareMap.get(DcMotorEx.class, "LeftSlide");
+        rightSlide = hardwareMap.get(DcMotorEx.class, "RightSlide"); // UP IS NEGATIVE TICKS
+        leftSlide = hardwareMap.get(DcMotorEx.class, "LeftSlide"); // UP IS POSITIVE TICKS
         slides = new DcMotorEx[]{rightSlide, leftSlide};
         for (DcMotorEx slide:slides){
             slide.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
