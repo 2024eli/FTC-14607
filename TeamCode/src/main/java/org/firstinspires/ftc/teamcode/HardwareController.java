@@ -82,6 +82,7 @@ public class HardwareController {
         frontLeft = hardwareMap.get(DcMotorEx.class, "FrontLeft");
         backRight = hardwareMap.get(DcMotorEx.class, "BackRight");
         backLeft = hardwareMap.get(DcMotorEx.class, "BackLeft");
+
         frontLeft.setDirection(DcMotorEx.Direction.REVERSE);
         backLeft.setDirection(DcMotorEx.Direction.REVERSE);
         drivetrain = new DcMotorEx[]{frontRight, frontLeft, backRight, backLeft};
@@ -95,18 +96,17 @@ public class HardwareController {
         claw = hardwareMap.get(Servo.class, "claw");
         lift = hardwareMap.get(Servo.class, "lift");
         swivel = hardwareMap.get(Servo.class, "swivel");
-        rightSlide = hardwareMap.get(DcMotorEx.class, "RightSlide"); // UP IS NEGATIVE TICKS
-        leftSlide = hardwareMap.get(DcMotorEx.class, "LeftSlide"); // UP IS POSITIVE TICKS
+        rightSlide = hardwareMap.get(DcMotorEx.class, "RightSlide");
+        leftSlide = hardwareMap.get(DcMotorEx.class, "LeftSlide");
         slides = new DcMotorEx[]{rightSlide, leftSlide};
-        for (DcMotorEx slide:slides){
-            slide.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        }
+        rightSlide.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        leftSlide.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         BNO055IMU.Parameters imuparams = new BNO055IMU.Parameters();
         imuparams.angleUnit = BNO055IMU.AngleUnit.DEGREES;
         imuparams.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        imuparams.calibrationDataFile = "BNO055IMUCalibration.json";
+        imuparams.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
         imuparams.loggingEnabled = true;
         imuparams.loggingTag = "IMU";
         imu.initialize(imuparams);
@@ -132,6 +132,16 @@ public class HardwareController {
         for (DcMotorEx motor : drivetrain) motor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
 
         //for (Telemetry.Item telemetryMotor : drivetrainTelemetry) telemetryMotor.setValue("NO DATA");
+    }
+
+    /**
+     * For debugging; adds caption and message to telemetry and updates
+     * @param caption
+     * @param message
+     */
+    public void debugPrint(String caption, Object message) {
+        telemetry.addData(caption, message);
+        telemetry.update();
     }
 
     /**
@@ -163,7 +173,7 @@ public class HardwareController {
         resetEncoders();
         for (DcMotorEx motor : drivetrain) {
             motor.setTargetPosition(calculateTicks(distance));
-            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
             motor.setVelocity(speed);
         }
         blockExecutionForRunToPosition();
@@ -178,7 +188,7 @@ public class HardwareController {
         resetEncoders();
         for (DcMotorEx motor : drivetrain) {
             motor.setTargetPosition(-calculateTicks(distance));
-            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
             motor.setVelocity(speed);
         }
         blockExecutionForRunToPosition();
@@ -197,7 +207,7 @@ public class HardwareController {
         backRight.setTargetPosition(calculatedTicks);
         backLeft.setTargetPosition(-calculatedTicks);
         for (DcMotorEx motor : drivetrain) {
-            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
             motor.setVelocity(speed);
         }
         blockExecutionForRunToPosition();
@@ -216,7 +226,7 @@ public class HardwareController {
         backRight.setTargetPosition(-calculatedTicks);
         backLeft.setTargetPosition(calculatedTicks);
         for (DcMotorEx motor : drivetrain) {
-            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
             motor.setVelocity(speed);
         }
         blockExecutionForRunToPosition();
@@ -277,12 +287,12 @@ public class HardwareController {
      * @param height - (ticks)
      */
     public void setSlidePos(int height) {
-        height = Math.max(0, Math.min(height, 1500));
+        height = Math.max(0, Math.min(height, 2000));
         rightSlide.setTargetPosition(height);
         leftSlide.setTargetPosition(-height);
         for(DcMotorEx slide:slides) {
-            slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            slide.setVelocity(50);
+            slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+            slide.setVelocity(100);
         }
     }
 
@@ -291,7 +301,7 @@ public class HardwareController {
      * @param pos
      */
     public void setLift(double pos) {
-        double position = Math.max(0.35, Math.min(pos, 1));
+        double position = Math.max(0.1, Math.min(pos, 1));
         lift.setPosition(position);
     }
 
