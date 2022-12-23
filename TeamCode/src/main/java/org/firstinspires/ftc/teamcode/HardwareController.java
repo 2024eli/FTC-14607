@@ -301,7 +301,7 @@ public class HardwareController {
      * @param pos
      */
     public void setLift(double pos) {
-        double position = Math.max(0.1, Math.min(pos, 1));
+        double position = Math.max(0, Math.min(pos, 0.95));
         lift.setPosition(position);
     }
 
@@ -325,4 +325,11 @@ public class HardwareController {
      * Sets claw to closed position
      */
     public void clawClose() { this.claw.setPosition(0.3); }
+
+    public boolean isClawClose() {
+        if (this.claw.getPosition() == 0.3){
+            return true;
+        }
+        return false;
+    }
 }
