@@ -14,7 +14,7 @@ public class TelepathicReSUScitation extends LinearOpMode {
     HardwareController control;
     final float slowSpeed = 0.3f;
     final float midSpeed = 0.5f;
-    final float normalSpeed = 0.8f;
+    final float normalSpeed = 0.5f;
     private boolean wasYPressed = false;
     private boolean isLifted = false;
 
@@ -36,7 +36,7 @@ public class TelepathicReSUScitation extends LinearOpMode {
         control.rightSlide.setDirection(DcMotorEx.Direction.REVERSE);
 
         waitForStart();
-
+        int slidePos = 0;
         while (opModeIsActive()) {
             prevGamepad1.copy(currentGamepad1);
             currentGamepad1.copy(gamepad1);
@@ -49,7 +49,7 @@ public class TelepathicReSUScitation extends LinearOpMode {
             else if (gamepad1.dpad_down) speedFactor = slowSpeed;
 
             float y = -gamepad1.left_stick_y * speedFactor;
-            float x = gamepad1.left_stick_x * midSpeed;
+            float x = gamepad1.left_stick_x * speedFactor * 1.4f;
             float rx = gamepad1.right_stick_x * speedFactor;
 
             float frontLeftPower = (y + x + rx);
@@ -61,6 +61,12 @@ public class TelepathicReSUScitation extends LinearOpMode {
             control.backLeft.setPower(backLeftPower);
             control.frontRight.setPower(frontRightPower);
             control.backRight.setPower(backRightPower);
+
+            //slides
+            if (gamepad1.left_trigger > 0) slidePos += 2;
+            else if (gamepad1.right_trigger > 0) slidePos -= 2;
+            //control.setSlidePos(slidePos);
+
 
             if (gamepad1.a) control.clawClose();
             else if (gamepad1.b) control.clawOpen();
@@ -77,10 +83,10 @@ public class TelepathicReSUScitation extends LinearOpMode {
             else if (gamepad2.left_trigger > 0) control.setLift(control.lift.getPosition() - 0.05);
 
             //slides alex's
-            control.rightSlide.setPower((gamepad2.left_stick_y)*0.95);
-            control.leftSlide.setPower((gamepad2.left_stick_y)*0.95);
-            control.rightSlide.setPower((gamepad2.right_stick_y)*0.4);
-            control.leftSlide.setPower((gamepad2.right_stick_y)*0.4);
+            control.rightSlide.setPower((gamepad2.left_stick_y));
+            control.leftSlide.setPower((gamepad2.left_stick_y));
+            control.rightSlide.setPower((gamepad2.right_stick_y)*0.45);
+            control.leftSlide.setPower((gamepad2.right_stick_y)*0.45);
 
 
 //            if (gamepad2.left_stick_y > 0) {

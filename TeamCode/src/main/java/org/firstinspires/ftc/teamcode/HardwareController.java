@@ -287,13 +287,15 @@ public class HardwareController {
      * @param height - (ticks)
      */
     public void setSlidePos(int height) {
-        height = Math.max(0, Math.min(height, 2000));
+        height = Math.max(0, Math.min(height, 1000));
         rightSlide.setTargetPosition(height);
-        leftSlide.setTargetPosition(-height);
-        for(DcMotorEx slide:slides) {
-            slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-            slide.setVelocity(100);
-        }
+        rightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightSlide.setVelocity(250);
+        //leftSlide.setTargetPosition(-height);
+//        for(DcMotorEx slide:slides) {
+//            slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+//            slide.setVelocity(100);
+//        }
     }
 
     /**
@@ -310,7 +312,7 @@ public class HardwareController {
      * @param pos 0.333 < pos < 1.000
      */
     public void setSwivel(double pos) {
-        double position = Math.max(0.333, Math.min(pos, 1.0));
+        double position = Math.max(0.4, Math.min(pos, 0.9));
         swivel.setPosition(position);
     }
 
