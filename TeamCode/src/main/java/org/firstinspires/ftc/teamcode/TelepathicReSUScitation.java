@@ -5,7 +5,7 @@ import androidx.annotation.NonNull;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
-
+import com.qualcomm.robotcore.util.Range;
 
 import org.checkerframework.checker.index.qual.NonNegative;
 
@@ -18,11 +18,11 @@ public class TelepathicReSUScitation extends LinearOpMode {
     public final float slowSpeed = 0.3f;
     public final float fastSpeed = 0.5f;
     public final DecimalFormat fourDecimals = new DecimalFormat("#.0000");
-    private volatile double swivelPos = 0.666;
-    private volatile double liftPos = 0;
-    private volatile boolean movingSlide = false;
-    private volatile byte slideDirection = 1; // direction the slides were just previously moving -1 is down, 1 is up, 0 is for set heights
-    private volatile int lastSlidePos = 0;
+    private double swivelPos = 0.666;
+    private double liftPos = 0;
+    private boolean movingSlide = false;
+    private byte slideDirection = 1; // direction the slides were just previously moving -1 is down, 1 is up, 0 is for set heights
+    private int lastSlidePos = 0;
 
     /**
      * Moves the drivetrain (the four wheels). Includes strafing and rotation
@@ -83,7 +83,7 @@ public class TelepathicReSUScitation extends LinearOpMode {
             else if (gamepad.b) {setPos = HardwareController.SHORTPOLE; movingSlide = true; slideDirection=0;}
             else if (gamepad.a) {setPos = HardwareController.GROUND; movingSlide = true; slideDirection=0;}
             //...
-            setPos = Math.max(HardwareController.SLIDEBOTTOM, Math.min(setPos, HardwareController.SLIDETOP));
+            setPos = Range.clip(setPos, HardwareController.SLIDEBOTTOM, HardwareController.SLIDETOP);
             control.setSlidePos(setPos);
         }
         return slidePos;
@@ -106,7 +106,7 @@ public class TelepathicReSUScitation extends LinearOpMode {
         if (gamepad.left_bumper && gamepad.right_bumper) swivelPos = 0.666; // straighten arm
         else if (gamepad.right_bumper) swivelPos += 0.0075;
         else if (gamepad.left_bumper) swivelPos -= 0.0075;
-        swivelPos = Math.max(0.4, Math.min(swivelPos, 0.9));
+        swivelPos = Range.clip(swivelPos, 0.4, 0.9);
         control.setSwivel(swivelPos);
     }
 
@@ -132,6 +132,7 @@ public class TelepathicReSUScitation extends LinearOpMode {
 
         while (opModeIsActive()) {
             double iterStart = System.nanoTime();
+
             if (gamepad1.dpad_down) speedFactor = slowSpeed;
             else if (gamepad1.dpad_up) speedFactor = fastSpeed;
 

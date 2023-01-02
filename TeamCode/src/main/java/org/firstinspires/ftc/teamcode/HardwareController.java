@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -287,7 +288,7 @@ public class HardwareController {
      * @param height - (ticks)
      */
     public void setSlidePos(int height) {
-        height = Math.max(SLIDEBOTTOM, Math.min(height, SLIDETOP));
+        height = Range.clip(height, SLIDEBOTTOM, SLIDETOP);
         int change = height - getSlidePos();
         rightSlide.setTargetPosition(-height);
         leftSlide.setTargetPosition(height);
@@ -302,7 +303,7 @@ public class HardwareController {
      * @param pos
      */
     public void setLift(double pos) {
-        double position = Math.max(0, Math.min(pos, 1.0));
+        double position = Range.clip(pos, 0, 1);
         lift.setPosition(position);
     }
 
@@ -311,7 +312,7 @@ public class HardwareController {
      * @param pos 0.4 < pos < 0.9
      */
     public void setSwivel(double pos) {
-        double position = Math.max(0.4, Math.min(pos, 0.9));
+        double position = Range.clip(pos, 0.4, 0.9);
         swivel.setPosition(position);
     }
 
