@@ -14,46 +14,34 @@ public class FapFreeFriday extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        Servo armSwivel = hardwareMap.get(Servo.class, "swivel");
-        Servo armVertical = hardwareMap.get(Servo.class, "lift");
-        Servo claw = hardwareMap.get(Servo.class, "claw");
-        DcMotorEx lS = hardwareMap.get(DcMotorEx.class, "LeftSlide");
-        DcMotorEx rS = hardwareMap.get(DcMotorEx.class, "RightSlide");
-
-        Gamepad currentGamepad = new Gamepad();
-        Gamepad prevGamepad = new Gamepad();
+        DcMotorEx leftS = hardwareMap.get(DcMotorEx.class, "LeftSlide");
+        DcMotorEx rightS = hardwareMap.get(DcMotorEx.class, "RightSlide");
 
         HardwareController control = new HardwareController(hardwareMap, this, telemetry);
         //lS.setPositionPIDFCoefficients(10.0);
         //lS.setVelocityPIDFCoefficients(10.0, 0.05, 0.0, 0.0);
         //lS.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(10, 0.05, 0.0, 0.0));
         waitForStart();
-        //rS.setVelocity(100);
-        lS.setVelocity(100);
         while(opModeIsActive()) {
-            int l = lS.getCurrentPosition();
-            //int r = rS.getCurrentPosition();
-            //telemetry.addData("at", r);
-            telemetry.addData("at l", l);
-            telemetry.addData("PIDF Coefficients", lS.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
-            //int r1 = -500;
-            //telemetry.addData("setting to", r1);
-            telemetry.addData("setting left to", 0);
-            //rS.setTargetPosition(r1);
-            lS.setVelocity(200);
-            //rS.setVelocity(200);
-
-            //rS.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-            lS.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-//            telemetry.addLine("waiting");
-//            telemetry.update();
-//            sleep(5000);
-//            lS.setVelocity(200);
-//            lS.setTargetPosition(0);
-//            lS.setVelocity(200);
-//            lS.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-            telemetry.addLine("Opmode Running");
+            control.setSlidePos(HardwareController.GROUND);
+            telemetry.addData("slides at", HardwareController.GROUND);
             telemetry.update();
+            sleep(2000);
+
+            control.setSlidePos(HardwareController.SHORTPOLE);
+            telemetry.addData("slides at", HardwareController.SHORTPOLE);
+            telemetry.update();
+            sleep(2000);
+
+            control.setSlidePos(HardwareController.MEDIUMPOLE);
+            telemetry.addData("slides at", HardwareController.MEDIUMPOLE);
+            telemetry.update();
+            sleep(2000);
+
+            control.setSlidePos(HardwareController.TALLPOLE);
+            telemetry.addData("slides at", HardwareController.TALLPOLE);
+            telemetry.update();
+            sleep(4000);
         }
     }
 }
