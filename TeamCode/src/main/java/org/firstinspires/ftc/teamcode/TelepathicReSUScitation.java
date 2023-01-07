@@ -12,14 +12,18 @@ import org.checkerframework.checker.index.qual.NonNegative;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 
-@TeleOp(name = "Main Teleop")
+@TeleOp(name = "Main Teleop", group="Main")
 public class TelepathicReSUScitation extends LinearOpMode {
     HardwareController control;
-    public final float slowSpeed = 0.3f;
-    public final float fastSpeed = 0.5f;
     public final DecimalFormat fourDecimals = new DecimalFormat("#.0000");
+
+    public final float slowSpeed = 0.3f;
+    public final float fastSpeed = 0.6f;
+
     private double swivelPos = 0.666;
     private double liftPos = 0;
+
+    private boolean fastSlides = true;
     private boolean movingSlide = false;
     private byte slideDirection = 1; // direction the slides were just previously moving -1 is down, 1 is up, 0 is for set heights
     private int lastSlidePos = 0;
@@ -31,16 +35,13 @@ public class TelepathicReSUScitation extends LinearOpMode {
      * @return driveTrainPowers, an array of all the powers the drivetrain is set to (FL, BL, FR, BR)
      */
     public float[] moveDriveTrain(@NonNull Gamepad gamepad, @NonNegative float speedFactor) {
-        if (gamepad.dpad_up) speedFactor = fastSpeed;
-        else if (gamepad.dpad_down) speedFactor = slowSpeed;
-
         float y = -gamepad.left_stick_y * speedFactor;
-        float x = gamepad.left_stick_x * speedFactor * 1.5f;
+        float x = gamepad.left_stick_x * speedFactor * 1.75f;
         float rx = gamepad.right_stick_x * speedFactor;
         float frontLeftPower = (y + x + rx);
         float backLeftPower = (y - x + rx) * 1.15f;
         float frontRightPower = (y - x - rx);
-        float backRightPower = (y + x - rx) * 1.18f;
+        float backRightPower = (y + x - rx) * 1.15f;
         float[] driveTrainPowers = new float[] {
                 Float.parseFloat(fourDecimals.format((double)frontLeftPower)),
                 Float.parseFloat(fourDecimals.format((double)backLeftPower)),
@@ -62,20 +63,31 @@ public class TelepathicReSUScitation extends LinearOpMode {
      */
     public int moveSlides(@NonNull Gamepad gamepad) {
         int slidePos = control.getSlidePos();
-        if (gamepad.right_trigger>0 || gamepad.left_trigger>0) {
-            if(gamepad.right_trigger>0 && slidePos>=HardwareController.SLIDETOP-20) control.setSlidePos(HardwareController.SLIDETOP);
-            else if(gamepad.left_trigger>0 && slidePos<=HardwareController.SLIDEBOTTOM+20) control.setSlidePos(HardwareController.SLIDEBOTTOM);
+        double up = gamepad.right_stick_y;
+        double down = -gamepad.right_stick_y;
+
+        if(gamepad.dpad_up) fastSlides = true;
+        else if(gamepad.dpad_down) fastSlides = false;
+        int SLIDE_UP_VELO = (int)(900 * (fastSlides ? 1:0.6));
+        int SLIDE_DOWN_VELO = (int)(-500 * (fastSlides ? 1:0.45));
+        // trigger: continuous
+        if (up>0 || down>0) {
+            if(up>0 && slidePos>=HardwareController.SLIDETOP-20) control.setSlidePos(HardwareController.SLIDETOP);
+            else if(down>0 && slidePos<=HardwareController.SLIDEBOTTOM+20) control.setSlidePos(HardwareController.SLIDEBOTTOM);
             else {
                 movingSlide = true;
                 double velo = 0;
-                if (gamepad.right_trigger > 0) { velo = 900; slideDirection = 1; }
-                else if (gamepad.left_trigger > 0) { velo = -550; slideDirection = -1; }
+                if (up > 0) { // ticks/s
+                    velo = SLIDE_UP_VELO; slideDirection = 1; }
+                else {
+                    velo = SLIDE_DOWN_VELO; slideDirection = -1; }
                 control.setSlideVelo(velo);
             }
+        // a,b,x,y, preset positions
         } else {
             if (movingSlide) {
                 movingSlide = false;
-                lastSlidePos = slidePos + 40*slideDirection;
+                lastSlidePos = slidePos + 10*slideDirection;
             }
             int setPos = lastSlidePos;
             if (gamepad.x) {setPos = HardwareController.TALLPOLE; movingSlide = true; slideDirection=0;}
@@ -104,8 +116,8 @@ public class TelepathicReSUScitation extends LinearOpMode {
      */
     public void moveSwivel(@NonNull Gamepad gamepad) {
         if (gamepad.left_bumper && gamepad.right_bumper) swivelPos = 0.666; // straighten arm
-        else if (gamepad.right_bumper) swivelPos += 0.0075;
-        else if (gamepad.left_bumper) swivelPos -= 0.0075;
+        else if (gamepad.right_bumper) swivelPos += 0.01;
+        else if (gamepad.left_bumper) swivelPos -= 0.01;
         swivelPos = Range.clip(swivelPos, 0.4, 0.9);
         control.setSwivel(swivelPos);
     }
@@ -138,10 +150,10 @@ public class TelepathicReSUScitation extends LinearOpMode {
 
             // ----------------------------------- Gamepad 1----------------------------------------
             float[] driveTrainPowers = moveDriveTrain(gamepad1, speedFactor);
-            int slidePos = moveSlides(gamepad1);
             setClaw(gamepad1);
 
             // ----------------------------------- Gamepad 2----------------------------------------
+            int slidePos = moveSlides(gamepad2);
             moveSwivel(gamepad2);
             moveLift(gamepad2);
 
@@ -149,6 +161,7 @@ public class TelepathicReSUScitation extends LinearOpMode {
             telemetry.addData("Speed factor", speedFactor);
             telemetry.addData("Drivetrain powers", Arrays.toString(driveTrainPowers));
             telemetry.addData("Slide position", slidePos);
+            telemetry.addData("Slide speed", fastSlides);
             telemetry.addData("Slide velocity", control.leftSlide.getVelocity());
             telemetry.addData("Swivel position", swivelPos);
             telemetry.addData("Lift position", liftPos);

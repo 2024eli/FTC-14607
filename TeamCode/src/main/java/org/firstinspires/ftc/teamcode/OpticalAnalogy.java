@@ -10,7 +10,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
 import java.util.List;
-@TeleOp(name = "Vision Auto")
+@TeleOp(name = "Vision Auto",group="Test")
 public class OpticalAnalogy extends LinearOpMode {
 
     HardwareController control;

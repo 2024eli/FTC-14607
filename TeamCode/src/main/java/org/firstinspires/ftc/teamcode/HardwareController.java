@@ -53,8 +53,8 @@ public class HardwareController {
     public final static int SLIDEBOTTOM = 0;
     public final static int SLIDETOP = 960;
     public final static int TALLPOLE = 960; //ticks
-    public final static int MEDIUMPOLE = 640;
-    public final static int SHORTPOLE = 320;
+    public final static int MEDIUMPOLE = 660;
+    public final static int SHORTPOLE = 360;
     public final static int GROUND = 0;
 
     /**
@@ -170,12 +170,12 @@ public class HardwareController {
     public void forward(double distance, double speed) {
         resetDriveTrainEncoders();
         int ticksToTravel = calculateTicks(distance, false);
+        telemetry.addData("moving ticks", ticksToTravel);
         for (DcMotorEx motor : drivetrain) {
             motor.setTargetPosition(ticksToTravel);
             motor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
             motor.setVelocity(speed);
         }
-        telemetry.addData("moving ticks", ticksToTravel);
         //blockExecutionForRunToPosition();
     }
 

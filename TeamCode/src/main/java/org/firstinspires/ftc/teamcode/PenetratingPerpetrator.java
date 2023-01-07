@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
-@Autonomous(name = "test auto")
+@Autonomous(name = "test auto", group="Test")
 public class PenetratingPerpetrator extends LinearOpMode {
     HardwareController control;
 
@@ -14,27 +14,19 @@ public class PenetratingPerpetrator extends LinearOpMode {
         control = new HardwareController(hardwareMap, this, telemetry);
 
         waitForStart();
-        while(opModeIsActive()) {
+        telemetry.addLine("waiting");
+        telemetry.update();
+        sleep(1000);
 
-            telemetry.addLine("no control");
-            telemetry.update();
-            for(DcMotorEx m : control.drivetrain) {
-                m.setTargetPosition(145);
-                m.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                m.setVelocity(300);
-            }
+        control.forward(30, 250);
+        while (control.frontRight.isBusy()) {
 
-            telemetry.addLine("waiting");
-            telemetry.update();
-            sleep(2000);
-
-            control.forward(30, 400);
-            sleep(1000);
-
-
-
-            telemetry.addLine("Opmode Running");
-            telemetry.update();
         }
+
+
+
+        telemetry.addLine("Opmode Running");
+        telemetry.update();
+
     }
 }

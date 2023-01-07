@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@TeleOp(name = "test tele2")
+@TeleOp(name = "test tele2", group="Test")
 public class FapFreeFriday extends LinearOpMode {
 
     @Override

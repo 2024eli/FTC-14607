@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@TeleOp(name = "test tele")
+@TeleOp(name = "test tele", group="Test")
 public class NutBuster3000 extends LinearOpMode {
     HardwareController control;
 
