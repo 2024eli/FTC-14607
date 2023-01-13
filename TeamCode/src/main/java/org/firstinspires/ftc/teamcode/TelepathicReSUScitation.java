@@ -19,6 +19,7 @@ public class TelepathicReSUScitation extends LinearOpMode {
 
     public final float slowSpeed = 0.3f;
     public final float fastSpeed = 0.6f;
+    public boolean reverseDrivetrain = false;
 
     private double swivelPos = 0.666;
     private double liftPos = 0;
@@ -35,8 +36,11 @@ public class TelepathicReSUScitation extends LinearOpMode {
      * @return driveTrainPowers, an array of all the powers the drivetrain is set to (FL, BL, FR, BR)
      */
     public float[] moveDriveTrain(@NonNull Gamepad gamepad, @NonNegative float speedFactor) {
-        float y = -gamepad.left_stick_y * speedFactor;
-        float x = gamepad.left_stick_x * speedFactor * 1.75f;
+        if (gamepad.dpad_up) reverseDrivetrain = false;
+        else if (gamepad.dpad_down) reverseDrivetrain = true;
+
+        float y = -gamepad.left_stick_y * speedFactor * (reverseDrivetrain ? -1:1);
+        float x = gamepad.left_stick_x * speedFactor * 1.75f * (reverseDrivetrain ? -1:1);
         float rx = gamepad.right_stick_x * speedFactor;
         float frontLeftPower = (y + x + rx);
         float backLeftPower = (y - x + rx) * 1.15f;
@@ -106,7 +110,11 @@ public class TelepathicReSUScitation extends LinearOpMode {
      * @param gamepad Gamepad that controls the claw (gamepad1 or gamepad2)
      */
     public void setClaw(@NonNull Gamepad gamepad) {
-        if (gamepad.right_bumper) control.clawClose();
+        if (gamepad.right_bumper) {
+            control.clawClose();
+            sleep(300);
+            control.setLift(1);
+        }
         else if (gamepad.left_bumper) control.clawOpen();
     }
 
@@ -128,8 +136,8 @@ public class TelepathicReSUScitation extends LinearOpMode {
      */
     public void moveLift(@NonNull Gamepad gamepad) {
         liftPos = control.lift.getPosition();
-        if (gamepad.right_trigger > 0) control.setLift(liftPos + 0.02);
-        else if (gamepad.left_trigger > 0) control.setLift(liftPos - 0.02);
+        if (gamepad.right_trigger > 0) control.setLift(liftPos + 0.03);
+        else if (gamepad.left_trigger > 0) control.setLift(liftPos - 0.03);
     }
 
     @Override
@@ -145,8 +153,8 @@ public class TelepathicReSUScitation extends LinearOpMode {
         while (opModeIsActive()) {
             double iterStart = System.nanoTime();
 
-            if (gamepad1.dpad_down) speedFactor = slowSpeed;
-            else if (gamepad1.dpad_up) speedFactor = fastSpeed;
+//            if (gamepad1.dpad_down) speedFactor = slowSpeed;
+//            else if (gamepad1.dpad_up) speedFactor = fastSpeed;
 
             // ----------------------------------- Gamepad 1----------------------------------------
             float[] driveTrainPowers = moveDriveTrain(gamepad1, speedFactor);

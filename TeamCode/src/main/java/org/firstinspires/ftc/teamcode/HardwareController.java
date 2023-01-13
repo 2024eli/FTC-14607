@@ -176,7 +176,7 @@ public class HardwareController {
             motor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
             motor.setVelocity(speed);
         }
-        //blockExecutionForRunToPosition();
+        blockExecutionForRunToPosition();
     }
 
     /**
@@ -204,7 +204,7 @@ public class HardwareController {
         int calculatedTicks = calculateTicks(distance, true);
         frontRight.setTargetPosition(-calculatedTicks);
         frontLeft.setTargetPosition(calculatedTicks);
-        backRight.setTargetPosition(calculatedTicks);
+        backRight.setTargetPosition((int)(calculatedTicks*1.1));
         backLeft.setTargetPosition(-calculatedTicks);
         for (DcMotorEx motor : drivetrain) {
             motor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
@@ -303,7 +303,7 @@ public class HardwareController {
      * @param pos
      */
     public void setLift(double pos) {
-        double position = Range.clip(pos, 0, 1);
+        double position = Range.clip(pos, 0.2, 1);
         lift.setPosition(position);
     }
 
@@ -326,7 +326,9 @@ public class HardwareController {
     /**
      * Sets claw to closed position
      */
-    public void clawClose() { this.claw.setPosition(0.3); }
+    public void clawClose() {
+        this.claw.setPosition(0.35);
+    }
 
     /**
      * Returns true if the claw is in the closed position
