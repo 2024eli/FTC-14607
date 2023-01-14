@@ -1,18 +1,18 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Autos;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 
-@Autonomous(name = "forwardauto")
-public class goforward extends LinearOpMode {
-    HardwareController control;
+import org.firstinspires.ftc.teamcode.Robots.BumbleBee;
+
+@Autonomous(name = "Forward - setposition", group="Main")
+public class GoFish extends LinearOpMode {
+    BumbleBee control;
 
     @Override
     public void runOpMode() {
-        control = new HardwareController(hardwareMap, this, telemetry);
+        control = new BumbleBee(hardwareMap, this, telemetry);
 
 
         control.clawClose();

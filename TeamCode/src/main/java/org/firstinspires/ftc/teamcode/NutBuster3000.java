@@ -2,19 +2,16 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.exception.RobotCoreException;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.Servo;
+
+import org.firstinspires.ftc.teamcode.Robots.BumbleBee;
 
 @TeleOp(name = "test tele", group="Test")
 public class NutBuster3000 extends LinearOpMode {
-    HardwareController control;
+    BumbleBee control;
 
     @Override
     public void runOpMode() {
-        control = new HardwareController(hardwareMap, this, telemetry);
+        control = new BumbleBee(hardwareMap, this, telemetry);
 
         waitForStart();
         while(opModeIsActive()) {

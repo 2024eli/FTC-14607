@@ -13,7 +13,7 @@ so uh yeah idk how to write a readme file
  - learn odo
  - learn pids
  - auto w/ vuforia
- - everything
+ - i want to swallow razor
 
 ### Info
  - [Team Website](https://www.robotuprising.org)

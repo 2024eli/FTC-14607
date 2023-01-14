@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Autos;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -8,12 +8,13 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+import org.firstinspires.ftc.teamcode.Robots.BumbleBee;
 
 import java.util.List;
 @TeleOp(name = "Vision Auto",group="Test")
 public class OpticalAnalogy extends LinearOpMode {
 
-    HardwareController control;
+    BumbleBee control;
     /*
      * Specify the source for the Tensor Flow Model.
      * If the TensorFlowLite object model is included in the Robot Controller App as an "asset",

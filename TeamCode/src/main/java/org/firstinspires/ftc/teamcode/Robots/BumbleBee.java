@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Robots;
 
 import androidx.annotation.NonNull;
 
@@ -11,7 +11,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
@@ -21,7 +20,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
  * Controller class to congregate code for manipulating physical hardware on the robot
  * (e.g. movement methods, motor instances, sensor inputs)
  */
-public class HardwareController {
+public class BumbleBee {
     // op mode
     public LinearOpMode opMode;
     public Telemetry telemetry;
@@ -65,7 +64,7 @@ public class HardwareController {
      * @param opModeInstance The opmode (pass using "this" keyword)
      * @param telemetryInstance The opmode's telemetry
      */
-    public HardwareController(@NonNull HardwareMap hardwareMap, LinearOpMode opModeInstance, Telemetry telemetryInstance) {
+    public BumbleBee(@NonNull HardwareMap hardwareMap, LinearOpMode opModeInstance, Telemetry telemetryInstance) {
         opMode = opModeInstance;
         telemetry = telemetryInstance;
 
@@ -250,7 +249,8 @@ public class HardwareController {
             telemetry.addData("Last Angle", lastAngle);
             telemetry.update();
 
-            motorSpeed = 18 * drivepidfcontroller.calculate(lastAngle);
+            //motorSpeed = 18 * drivepidfcontroller.calculate(lastAngle);
+            motorSpeed = -4.8 * drivepidfcontroller.calculate(lastAngle);
             frontRight.setVelocity(-motorSpeed);
             frontLeft.setVelocity(motorSpeed);
             backRight.setVelocity(-motorSpeed);
@@ -303,7 +303,7 @@ public class HardwareController {
      * @param pos
      */
     public void setLift(double pos) {
-        double position = Range.clip(pos, 0.2, 1);
+        double position = Range.clip(pos, 0, 1);
         lift.setPosition(position);
     }
 

@@ -1,20 +1,18 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Autos;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.exception.RobotCoreException;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import org.firstinspires.ftc.teamcode.HardwareController;
+import org.firstinspires.ftc.teamcode.Robots.BumbleBee;
 
-@Autonomous(name = "autobots")
-public class autobotsfuckoff extends LinearOpMode {
-    HardwareController control;
+@Autonomous(name = "Forward - setpower")
+public class Autobots extends LinearOpMode {
+    BumbleBee control;
 
     @Override
     public void runOpMode() {
         waitForStart();
-        control = new HardwareController(hardwareMap, this, telemetry);
+        control = new BumbleBee(hardwareMap, this, telemetry);
 
         control.frontLeft.setDirection(DcMotorEx.Direction.REVERSE);
         control.backLeft.setDirection(DcMotorEx.Direction.REVERSE);

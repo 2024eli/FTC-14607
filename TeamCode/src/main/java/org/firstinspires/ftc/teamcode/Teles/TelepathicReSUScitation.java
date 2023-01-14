@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Teles;
 
 import androidx.annotation.NonNull;
 
@@ -8,13 +8,14 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.Range;
 
 import org.checkerframework.checker.index.qual.NonNegative;
+import org.firstinspires.ftc.teamcode.Robots.BumbleBee;
 
 import java.text.DecimalFormat;
 import java.util.Arrays;
 
 @TeleOp(name = "Main Teleop", group="Main")
 public class TelepathicReSUScitation extends LinearOpMode {
-    HardwareController control;
+    BumbleBee control;
     public final DecimalFormat fourDecimals = new DecimalFormat("#.0000");
 
     public final float slowSpeed = 0.3f;
@@ -76,8 +77,8 @@ public class TelepathicReSUScitation extends LinearOpMode {
         int SLIDE_DOWN_VELO = (int)(-500 * (fastSlides ? 1:0.45));
         // trigger: continuous
         if (up>0 || down>0) {
-            if(up>0 && slidePos>=HardwareController.SLIDETOP-20) control.setSlidePos(HardwareController.SLIDETOP);
-            else if(down>0 && slidePos<=HardwareController.SLIDEBOTTOM+20) control.setSlidePos(HardwareController.SLIDEBOTTOM);
+            if(up>0 && slidePos>= BumbleBee.SLIDETOP-20) control.setSlidePos(BumbleBee.SLIDETOP);
+            else if(down>0 && slidePos<= BumbleBee.SLIDEBOTTOM+20) control.setSlidePos(BumbleBee.SLIDEBOTTOM);
             else {
                 movingSlide = true;
                 double velo = 0;
@@ -94,12 +95,12 @@ public class TelepathicReSUScitation extends LinearOpMode {
                 lastSlidePos = slidePos + 10*slideDirection;
             }
             int setPos = lastSlidePos;
-            if (gamepad.x) {setPos = HardwareController.TALLPOLE; movingSlide = true; slideDirection=0;}
-            else if (gamepad.y) {setPos = HardwareController.MEDIUMPOLE; movingSlide = true; slideDirection=0;}
-            else if (gamepad.b) {setPos = HardwareController.SHORTPOLE; movingSlide = true; slideDirection=0;}
-            else if (gamepad.a) {setPos = HardwareController.GROUND; movingSlide = true; slideDirection=0;}
+            if (gamepad.x) {setPos = BumbleBee.TALLPOLE; movingSlide = true; slideDirection=0;}
+            else if (gamepad.y) {setPos = BumbleBee.MEDIUMPOLE; movingSlide = true; slideDirection=0;}
+            else if (gamepad.b) {setPos = BumbleBee.SHORTPOLE; movingSlide = true; slideDirection=0;}
+            else if (gamepad.a) {setPos = BumbleBee.GROUND; movingSlide = true; slideDirection=0;}
             //...
-            setPos = Range.clip(setPos, HardwareController.SLIDEBOTTOM, HardwareController.SLIDETOP);
+            setPos = Range.clip(setPos, BumbleBee.SLIDEBOTTOM, BumbleBee.SLIDETOP);
             control.setSlidePos(setPos);
         }
         return slidePos;
@@ -136,8 +137,8 @@ public class TelepathicReSUScitation extends LinearOpMode {
      */
     public void moveLift(@NonNull Gamepad gamepad) {
         liftPos = control.lift.getPosition();
-        if (gamepad.right_trigger > 0) control.setLift(liftPos + 0.03);
-        else if (gamepad.left_trigger > 0) control.setLift(liftPos - 0.03);
+        if (gamepad.right_trigger > 0) control.setLift(liftPos + 0.02);
+        else if (gamepad.left_trigger > 0) control.setLift(liftPos - 0.02);
     }
 
     @Override
@@ -148,7 +149,7 @@ public class TelepathicReSUScitation extends LinearOpMode {
         float speedFactor = slowSpeed;
 
         waitForStart();
-        control = new HardwareController(hardwareMap, this, telemetry);
+        control = new BumbleBee(hardwareMap, this, telemetry);
 
         while (opModeIsActive()) {
             double iterStart = System.nanoTime();

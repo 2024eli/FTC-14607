@@ -2,16 +2,16 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
+
+import org.firstinspires.ftc.teamcode.Robots.BumbleBee;
 
 @Autonomous(name = "test auto", group="Test")
 public class PenetratingPerpetrator extends LinearOpMode {
-    HardwareController control;
+    BumbleBee control;
 
     @Override
     public void runOpMode() {
-        control = new HardwareController(hardwareMap, this, telemetry);
+        control = new BumbleBee(hardwareMap, this, telemetry);
 
         waitForStart();
         telemetry.addLine("waiting");

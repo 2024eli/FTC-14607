@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Autos;
 
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XYZ;
@@ -40,7 +40,7 @@ import java.util.List;
  * To learn more about the FTC field coordinate model, see FTC_FieldCoordinateSystemDefinition.pdf in this folder
  */
 
-@TeleOp(name="Vuforia Field Nav Webcam", group ="Main")
+@TeleOp(name="Vuforia Field Nav Webcam", group ="Test")
 @Disabled
 public class EuphoricClimax extends LinearOpMode {
 

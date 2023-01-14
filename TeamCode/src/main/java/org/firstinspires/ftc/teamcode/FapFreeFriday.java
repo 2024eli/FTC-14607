@@ -2,12 +2,9 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.exception.RobotCoreException;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
-import com.qualcomm.robotcore.hardware.Servo;
+
+import org.firstinspires.ftc.teamcode.Robots.BumbleBee;
 
 @TeleOp(name = "test tele2", group="Test")
 public class FapFreeFriday extends LinearOpMode {
@@ -17,29 +14,29 @@ public class FapFreeFriday extends LinearOpMode {
         DcMotorEx leftS = hardwareMap.get(DcMotorEx.class, "LeftSlide");
         DcMotorEx rightS = hardwareMap.get(DcMotorEx.class, "RightSlide");
 
-        HardwareController control = new HardwareController(hardwareMap, this, telemetry);
+        BumbleBee control = new BumbleBee(hardwareMap, this, telemetry);
         //lS.setPositionPIDFCoefficients(10.0);
         //lS.setVelocityPIDFCoefficients(10.0, 0.05, 0.0, 0.0);
         //lS.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(10, 0.05, 0.0, 0.0));
         waitForStart();
         while(opModeIsActive()) {
-            control.setSlidePos(HardwareController.GROUND);
-            telemetry.addData("slides at", HardwareController.GROUND);
+            control.setSlidePos(BumbleBee.GROUND);
+            telemetry.addData("slides at", BumbleBee.GROUND);
             telemetry.update();
             sleep(2000);
 
-            control.setSlidePos(HardwareController.SHORTPOLE);
-            telemetry.addData("slides at", HardwareController.SHORTPOLE);
+            control.setSlidePos(BumbleBee.SHORTPOLE);
+            telemetry.addData("slides at", BumbleBee.SHORTPOLE);
             telemetry.update();
             sleep(2000);
 
-            control.setSlidePos(HardwareController.MEDIUMPOLE);
-            telemetry.addData("slides at", HardwareController.MEDIUMPOLE);
+            control.setSlidePos(BumbleBee.MEDIUMPOLE);
+            telemetry.addData("slides at", BumbleBee.MEDIUMPOLE);
             telemetry.update();
             sleep(2000);
 
-            control.setSlidePos(HardwareController.TALLPOLE);
-            telemetry.addData("slides at", HardwareController.TALLPOLE);
+            control.setSlidePos(BumbleBee.TALLPOLE);
+            telemetry.addData("slides at", BumbleBee.TALLPOLE);
             telemetry.update();
             sleep(4000);
         }
