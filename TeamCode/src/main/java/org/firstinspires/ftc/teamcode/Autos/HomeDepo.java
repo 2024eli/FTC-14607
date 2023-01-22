@@ -6,7 +6,10 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.teamcode.Robots.BumbleBee;
 
-@Autonomous(name = "Blind Deposit", group="Main")
+@Autonomous(name = "Blind Deposit", group="Backup")
+/**
+ * currently a hail mary auto, 0/10 would not recommend under normal circumstances in a real comp
+ */
 public class HomeDepo extends LinearOpMode {
     BumbleBee control;
 

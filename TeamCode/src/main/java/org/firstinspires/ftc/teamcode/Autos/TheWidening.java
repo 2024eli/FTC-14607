@@ -12,7 +12,7 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-@Autonomous(name = "Webcam Deposit right", group="Main")
+@Autonomous(name = "Vision (EOCV) Right Auto", group="Main")
 public class TheWidening extends LinearOpMode {
     BumbleBee control;
     OpenCvWebcam webcam;

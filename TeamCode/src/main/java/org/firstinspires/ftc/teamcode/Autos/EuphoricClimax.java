@@ -23,24 +23,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This OpMode illustrates using the Vuforia localizer to determine positioning and orientation of
- * robot on the FTC field using a WEBCAM.  The code is structured as a LinearOpMode
- *
- * NOTE: If you are running on a Phone with a built-in camera, use the ConceptVuforiaFieldNavigation example instead of this one.
- * NOTE: It is possible to switch between multiple WebCams (eg: one for the left side and one for the right).
- *       For a related example of how to do this, see ConceptTensorFlowObjectDetectionSwitchableCameras
- *
- * When images are located, Vuforia is able to determine the position and orientation of the
- * image relative to the camera.  This sample code then combines that information with a
- * knowledge of where the target images are on the field, to determine the location of the camera.
- *
- * Finally, the location of the camera on the robot is used to determine the
- * robot's location and orientation on the field.
- *
- * To learn more about the FTC field coordinate model, see FTC_FieldCoordinateSystemDefinition.pdf in this folder
+ * Vuforia localizer copied from an external sample. Supposed to find robot's position using
+ * the position of detected sidewall images, but idk cant do the assets properly and EOCV easier
  */
-
-@TeleOp(name="Vuforia Field Nav Webcam", group ="Test")
+@TeleOp(name="Vuforia Localizer", group ="Test")
 @Disabled
 public class EuphoricClimax extends LinearOpMode {
 
