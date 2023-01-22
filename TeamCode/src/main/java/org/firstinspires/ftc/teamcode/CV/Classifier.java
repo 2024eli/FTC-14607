@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Autos.CV;
+package org.firstinspires.ftc.teamcode.CV;
 
 import org.tensorflow.lite.Interpreter;
 

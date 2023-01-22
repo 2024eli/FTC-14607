@@ -62,7 +62,7 @@ public abstract class RobotGeneric {
         frontLeft.setDirection(DcMotorEx.Direction.REVERSE);
         backLeft.setDirection(DcMotorEx.Direction.REVERSE);
         drivetrain = new DcMotorEx[]{frontRight, frontLeft, backRight, backLeft};
-        for (DcMotorEx motor : drivetrain) motor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        for (DcMotorEx motor : drivetrain) motor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
 
 //        // odo
 //        odoRight = hardwareMap.get(DcMotorEx.class, "odoRight");

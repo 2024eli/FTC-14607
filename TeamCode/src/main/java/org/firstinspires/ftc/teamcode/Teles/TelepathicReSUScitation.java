@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.Range;
 
@@ -19,8 +21,12 @@ public class TelepathicReSUScitation extends LinearOpMode {
     public final DecimalFormat fourDecimals = new DecimalFormat("#.0000");
 
     public final float slowSpeed = 0.3f;
-    public final float fastSpeed = 0.6f;
+    public final float fastSpeed = 0.54f;
     public boolean reverseDrivetrain = false;
+    public boolean movingDrivetrain = false;
+    public float lastY = 0;
+    public float lastX = 0;
+    public float lastRX = 0;
 
     private double swivelPos = 0.666;
     private double liftPos = 0;
@@ -37,16 +43,33 @@ public class TelepathicReSUScitation extends LinearOpMode {
      * @return driveTrainPowers, an array of all the powers the drivetrain is set to (FL, BL, FR, BR)
      */
     public float[] moveDriveTrain(@NonNull Gamepad gamepad, @NonNegative float speedFactor) {
-        if (gamepad.dpad_up) reverseDrivetrain = false;
-        else if (gamepad.dpad_down) reverseDrivetrain = true;
+        float fbinput = gamepad.left_stick_y;
+        if(gamepad.dpad_up) fbinput = 1;
+        else if(gamepad.dpad_down) fbinput = -1;
 
-        float y = -gamepad.left_stick_y * speedFactor * (reverseDrivetrain ? -1:1);
-        float x = gamepad.left_stick_x * speedFactor * 1.75f * (reverseDrivetrain ? -1:1);
-        float rx = gamepad.right_stick_x * speedFactor;
+        float y = -fbinput * speedFactor;
+        float x = gamepad.left_stick_x * speedFactor * 1.75f;
+        float rx = gamepad.right_stick_x * speedFactor * 0.6f;
+
         float frontLeftPower = (y + x + rx);
-        float backLeftPower = (y - x + rx) * 1.15f;
+        float backLeftPower = (y - x + rx) * 1.17f;
         float frontRightPower = (y - x - rx);
         float backRightPower = (y + x - rx) * 1.15f;
+        boolean braking = false;
+//        if(y!=0 || x!=0 || rx!=0) {
+//            movingDrivetrain = true;
+//            lastY = y;
+//            lastX = x;
+//            lastRX = rx;
+//        } else if(movingDrivetrain) {
+//            movingDrivetrain = false;
+//            braking = true;
+//            frontLeftPower = -1*(lastY + lastX + lastRX);
+//            backLeftPower = -1*(lastY - lastX + lastRX) * 1.17f;
+//            frontRightPower = -1*(lastY - lastX - lastRX);
+//            backRightPower = -1*(lastY + lastX - lastRX) * 1.15f;
+//        }
+
         float[] driveTrainPowers = new float[] {
                 Float.parseFloat(fourDecimals.format((double)frontLeftPower)),
                 Float.parseFloat(fourDecimals.format((double)backLeftPower)),
@@ -57,6 +80,7 @@ public class TelepathicReSUScitation extends LinearOpMode {
         control.backLeft.setPower(backLeftPower);
         control.frontRight.setPower(frontRightPower);
         control.backRight.setPower(backRightPower);
+        // if(braking) sleep(100);
 
         return driveTrainPowers;
     }
@@ -74,7 +98,7 @@ public class TelepathicReSUScitation extends LinearOpMode {
         if(gamepad.dpad_up) fastSlides = true;
         else if(gamepad.dpad_down) fastSlides = false;
         int SLIDE_UP_VELO = (int)(900 * (fastSlides ? 1:0.6));
-        int SLIDE_DOWN_VELO = (int)(-500 * (fastSlides ? 1:0.45));
+        int SLIDE_DOWN_VELO = (int)(-650 * (fastSlides ? 1:0.45));
         // trigger: continuous
         if (up>0 || down>0) {
             if(up>0 && slidePos>= BumbleBee.SLIDETOP-20) control.setSlidePos(BumbleBee.SLIDETOP);
@@ -146,10 +170,10 @@ public class TelepathicReSUScitation extends LinearOpMode {
         telemetry.addLine("Before starting, make sure the slides are at the bottom");
         telemetry.update();
 
-        float speedFactor = slowSpeed;
-
+        float speedFactor = fastSpeed;
         waitForStart();
         control = new BumbleBee(hardwareMap, this, telemetry);
+        for(DcMotorEx m:control.drivetrain) m.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         while (opModeIsActive()) {
             double iterStart = System.nanoTime();
