@@ -33,7 +33,9 @@ dependencies {
     implementation 'com.acmerobotics.roadrunner:core:0.5.3'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
+    implementation 'org.apache.commons:commons-math3:3.6.1'
 
+    implementation 'com.acmerobotics.roadrunner:core:0.5.5'
     ktlint("com.pinterest:ktlint:0.42.1") {
         attributes {
             attribute(Bundling.BUNDLING_ATTRIBUTE, getObjects().named(Bundling, Bundling.EXTERNAL))

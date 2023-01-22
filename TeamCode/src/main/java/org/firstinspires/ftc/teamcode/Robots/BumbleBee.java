@@ -17,22 +17,9 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 /**
- * Controller class to congregate code for manipulating physical hardware on the robot
- * (e.g. movement methods, motor instances, sensor inputs)
+ * 2022-2023 PowerPlay v1 Robot
  */
-public class BumbleBee {
-    // op mode
-    public LinearOpMode opMode;
-    public Telemetry telemetry;
-    // drivetrain
-    public DcMotorEx frontLeft;
-    public DcMotorEx frontRight;
-    public DcMotorEx backLeft;
-    public DcMotorEx backRight;
-    public DcMotorEx[] drivetrain;
-//    public DcMotorEx odoRight;
-//    public DcMotorEx odoLeft;
-//    public DcMotorEx odoBack;
+public class BumbleBee extends RobotGeneric{
     // interactors
     public Servo claw;
     public Servo lift;
@@ -40,14 +27,8 @@ public class BumbleBee {
     public DcMotorEx rightSlide;
     public DcMotorEx leftSlide;
     public DcMotorEx[] slides;
-    // sensor/controllers
-    public BNO055IMU imu;
-    public PIDFController drivepidfcontroller;
+    // controllers
     public PIDFController slidepidfcontroller;
-    // hardware properties TODO: record these values when robot is finished
-    public final int motorTicks = 145; //gobilda 5202 1150 rpm
-    public final double wheelDiameter = 9.6; // cm
-    public final double wheelCircumference = Math.PI * wheelDiameter; // cm
     // other constants
     public final static int SLIDEBOTTOM = 0;
     public final static int SLIDETOP = 960;
@@ -65,23 +46,7 @@ public class BumbleBee {
      * @param telemetryInstance The opmode's telemetry
      */
     public BumbleBee(@NonNull HardwareMap hardwareMap, LinearOpMode opModeInstance, Telemetry telemetryInstance) {
-        opMode = opModeInstance;
-        telemetry = telemetryInstance;
-
-        //drivetrain
-        frontRight = hardwareMap.get(DcMotorEx.class, "FrontRight");
-        frontLeft = hardwareMap.get(DcMotorEx.class, "FrontLeft");
-        backRight = hardwareMap.get(DcMotorEx.class, "BackRight");
-        backLeft = hardwareMap.get(DcMotorEx.class, "BackLeft");
-        frontLeft.setDirection(DcMotorEx.Direction.REVERSE);
-        backLeft.setDirection(DcMotorEx.Direction.REVERSE);
-        drivetrain = new DcMotorEx[]{frontRight, frontLeft, backRight, backLeft};
-        for (DcMotorEx motor : drivetrain) motor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-
-//        // odo
-//        odoRight = hardwareMap.get(DcMotorEx.class, "odoRight");
-//        odoLeft = hardwareMap.get(DcMotorEx.class, "odoLeft");
-//        odoBack = hardwareMap.get(DcMotorEx.class, "odoBack");
+        super(hardwareMap, opModeInstance, telemetryInstance, 145, 9.6);
 
         // arm
         claw = hardwareMap.get(Servo.class, "claw");
@@ -99,40 +64,19 @@ public class BumbleBee {
         }
         resetSlideEncoders();
 
-        //imu
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
-        BNO055IMU.Parameters imuparams = new BNO055IMU.Parameters();
-        imuparams.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-        imuparams.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        imuparams.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
-        imuparams.loggingEnabled = true;
-        imuparams.loggingTag = "IMU";
-        imu.initialize(imuparams);
-
-        drivepidfcontroller = new PIDFController(3, 5, 1, 0);
-        drivepidfcontroller.setIntegrationBounds(-5, 5);
-        drivepidfcontroller.setTolerance(1);
         slidepidfcontroller = new PIDFController(50, 0.05, 0, 0);
         //slidepidfcontroller.setIntegrationBounds(-5, 5);
         slidepidfcontroller.setTolerance(3);
     }
 
     // ------------------------------------- MISC METHODS ------------------------------------------
-    /**
-     * Assigns the current position of every motor on the drivetrain to tick (position) 0
-     */
-    public void resetDriveTrainEncoders() {
-        for (DcMotorEx motor : drivetrain) {
-            motor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        }
-    }
 
     /**
      * Assigns the current position of both slide motors to tick (position) 0.
      * MAKE SURE THE SLIDES ARE AT THE BOTTOM WHEN DOING THIS.
      */
     public void resetSlideEncoders() {
-        for (DcMotorEx motor : slides) motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        setRunMode(slides, DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         // behavior may vary between motor models, so after resetting set all slides back to RUN_TO_POSITION
         for (DcMotorEx motor: slides) {
             motor.setTargetPosition(motor.getCurrentPosition());
@@ -140,125 +84,27 @@ public class BumbleBee {
         }
     }
 
-    /**
-     * Converts a distance (IN CENTIMETERS) on the field to a number of ticks for the motor to rotate about
-     * @param distance (centimeters)
-     * @return Ticks for the drivetrain motors to turn
-     */
-    public int calculateTicks(double distance, boolean strafe) {
-        return (int) Math.round( (distance/this.wheelCircumference * motorTicks) * (strafe ? 1.2:1)  );
-    }
-
-    /**
-     * Pauses op mode and interactors while drivetrain motors are running using RUN_TO_POSITION
-     */
-    public void blockExecutionForRunToPosition() {
-        while (opMode.opModeIsActive()) {
-            if (!drivetrain[0].isBusy()) break;
-        }
-        resetDriveTrainEncoders();
-    }
-
     // --------------------------------- MOVEMENT METHODS ------------------------------------------
 
-    /**
-     * Move the robot [distance] cm forwards using encoders
-     * @param distance (centimeters)
-     * @param speed (ticks per second)
-     */
-    public void forward(double distance, double speed) {
-        resetDriveTrainEncoders();
-        int ticksToTravel = calculateTicks(distance, false);
-        telemetry.addData("moving ticks", ticksToTravel);
-        for (DcMotorEx motor : drivetrain) {
-            motor.setTargetPosition(ticksToTravel);
-            motor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-            motor.setVelocity(speed);
-        }
-        blockExecutionForRunToPosition();
-    }
-
-    /**
-     * Move the robot [distance] cm backwards using encoders
-     * @param distance (centimeters)
-     * @param speed (ticks per second)
-     */
-    public void backward(double distance, double speed) {
-        resetDriveTrainEncoders();
-        for (DcMotorEx motor : drivetrain) {
-            motor.setTargetPosition(-calculateTicks(distance, false));
-            motor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-            motor.setVelocity(speed);
-        }
-        blockExecutionForRunToPosition();
-    }
-
-    /**
-     * Move the robot [distance] cm to the right using encoders (may not be exact)
-     * @param distance (centimeters)
-     * @param speed (ticks per second)
-     */
-    public void right(double distance, double speed) {
-        resetDriveTrainEncoders();
-        int calculatedTicks = calculateTicks(distance, true);
-        frontRight.setTargetPosition(-calculatedTicks);
-        frontLeft.setTargetPosition(calculatedTicks);
-        backRight.setTargetPosition((int)(calculatedTicks*1.1));
-        backLeft.setTargetPosition(-calculatedTicks);
-        for (DcMotorEx motor : drivetrain) {
-            motor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-            motor.setVelocity(speed);
-        }
-        blockExecutionForRunToPosition();
-    }
-
-    /**
-     * Move the robot [distance] cm to the left using encoders (may not be exact)
-     * @param distance (centimeters)
-     * @param speed (ticks per second)
-     */
-    public void left(double distance, double speed) {
-        resetDriveTrainEncoders();
-        int calculatedTicks = calculateTicks(distance, true);
-        frontRight.setTargetPosition(calculatedTicks);
-        frontLeft.setTargetPosition(-calculatedTicks);
-        backRight.setTargetPosition(-calculatedTicks);
-        backLeft.setTargetPosition(calculatedTicks);
-        for (DcMotorEx motor : drivetrain) {
-            motor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-            motor.setVelocity(speed);
-        }
-        blockExecutionForRunToPosition();
-    }
-
-    /**
-     * Rotates the robot [degrees] clockwise using PIDFController with imu as input. Should not be used
-     * in driver-controlled programs
-     * @param degrees angle to rotate to in degrees, SHOULD BE BETWEEN -180 AND 180
-     */
-    public void rotate(double degrees) {
-        double motorSpeed = 900;
+    public void rotateP(double degrees) {
+        double motorSpeed = 500;
         if(degrees < 0) motorSpeed = -motorSpeed;
         float lastAngle = imu.getAngularOrientation().firstAngle;
         degrees += lastAngle;
         drivepidfcontroller.reset();
         drivepidfcontroller.setSetPoint(degrees);
+        setRunMode(drivetrain, DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         do {
             lastAngle = imu.getAngularOrientation().firstAngle;
-            telemetry.addData("Motor Speed", motorSpeed);
-            telemetry.addData("Last Angle", lastAngle);
-            telemetry.update();
-
-            //motorSpeed = 18 * drivepidfcontroller.calculate(lastAngle);
-            motorSpeed = -4.8 * drivepidfcontroller.calculate(lastAngle);
-            frontRight.setVelocity(-motorSpeed);
+            motorSpeed = -0.0096 * drivepidfcontroller.calculate(lastAngle);
+            frontRight.setPower(-motorSpeed);
             frontLeft.setVelocity(motorSpeed);
             backRight.setVelocity(-motorSpeed);
             backLeft.setVelocity(motorSpeed);
 
         } while (!drivepidfcontroller.atSetPoint());
         //make sure motors stop
-        for(DcMotorEx m : drivetrain) m.setVelocity(0);
+        for(DcMotorEx m : drivetrain) m.setPower(0);
         drivepidfcontroller.reset();
     }
 
@@ -278,7 +124,7 @@ public class BumbleBee {
         double currentPos = getSlidePos();
         // prevents setting velocity if it will exceed the limits
         if ( (currentPos>=955 && velocity>0) || (currentPos<=0 && velocity<0) ) velocity = 0;
-        for (DcMotorEx slide : slides) slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        setRunMode(slides, DcMotorEx.RunMode.RUN_USING_ENCODER);
         rightSlide.setVelocity(-velocity);
         leftSlide.setVelocity(velocity);
     }
@@ -332,7 +178,7 @@ public class BumbleBee {
 
     /**
      * Returns true if the claw is in the closed position
-     * @return
+     * @return Whether or not the claw is closed
      */
     public boolean isClawClose() { return this.claw.getPosition() == 0.3; }
 

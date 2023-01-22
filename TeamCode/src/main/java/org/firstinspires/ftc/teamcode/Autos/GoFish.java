@@ -14,13 +14,12 @@ public class GoFish extends LinearOpMode {
     public void runOpMode() {
         control = new BumbleBee(hardwareMap, this, telemetry);
 
-
         control.clawClose();
         control.setLift(1);
         waitForStart();
 
 
-        control.forward(120, 250);
+        control.backward(110, 250);
 
         while(control.frontRight.isBusy()) {}
 

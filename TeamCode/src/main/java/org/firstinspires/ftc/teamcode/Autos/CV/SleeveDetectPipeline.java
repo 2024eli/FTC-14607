@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.CV;
+package org.firstinspires.ftc.teamcode.Autos.CV;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;

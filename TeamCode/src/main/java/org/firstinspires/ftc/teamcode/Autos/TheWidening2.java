@@ -95,7 +95,7 @@ public class TheWidening2 extends LinearOpMode {
         control.forward(53, 250);
         sleep(500);
         if (zone==3){
-            control.rotate(180);
+            //control.rotate(180);
         }
         else if (zone==2){
             control.right(56,200);
