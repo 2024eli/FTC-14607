@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.Robots.BumbleBee;
 
-@Autonomous(name = "Forward - setposition", group="Main")
+@Autonomous(name = "Forward - setposition", group="Backup")
 public class GoFish extends LinearOpMode {
     BumbleBee control;
 

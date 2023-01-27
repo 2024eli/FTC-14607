@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import org.firstinspires.ftc.teamcode.Robots.BumbleBee;
 
-@Autonomous(name = "Forward - setpower")
+@Autonomous(name = "Forward - setpower", group="Backup")
 public class Autobots extends LinearOpMode {
     BumbleBee control;
 

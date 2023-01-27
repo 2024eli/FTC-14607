@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Autos;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -16,7 +17,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-@TeleOp(name = "Vision Auto",group="Test")
+@Autonomous(name = "TF Vision Auto",group="Main")
 public class OpticalAnalogy extends LinearOpMode {
     BumbleBee control;
 
