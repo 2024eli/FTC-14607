@@ -78,8 +78,14 @@ public class OpticalAnalogy extends LinearOpMode {
         }
         int max = 0;
         for(int x : labelCounts) if (x > max) max = x;
-        for(int i=0; i<3; i++) {
-            if (labelCounts[i] == max) {zone = i+1; break;}
+        if (max < 3) zone = 2; // seems like the yellow square gives it the most trouble
+        else {
+            for (int i = 0; i < 3; i++) {
+                if (labelCounts[i] == max) {
+                    zone = i + 1;
+                    break;
+                }
+            }
         }
         telemetry.addData("Found zone", zone);
         telemetry.update();
@@ -132,7 +138,7 @@ public class OpticalAnalogy extends LinearOpMode {
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfodParameters.minResultConfidence = 0.75f;
+        tfodParameters.minResultConfidence = 0.70f;
         tfodParameters.isModelTensorFlow2 = true;
         tfodParameters.inputSize = 640;
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
