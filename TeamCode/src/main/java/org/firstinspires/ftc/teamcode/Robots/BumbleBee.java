@@ -19,7 +19,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 /**
  * 2022-2023 PowerPlay v1 Robot
  */
-public class BumbleBee extends RobotGeneric{
+public class BumbleBee extends RobotBase {
     // interactors
     public Servo claw;
     public Servo lift;

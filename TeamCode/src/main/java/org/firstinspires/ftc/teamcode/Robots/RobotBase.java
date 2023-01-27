@@ -10,16 +10,17 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 /**
  * Controller class to congregate code for manipulating physical hardware on the robot
  * (e.g. movement methods, motor instances, sensor inputs)
+ *
+ * RobotBase is to be extended by all hardware control classes for basic functionality
+ * and so u write less
  */
-public abstract class RobotGeneric {
+public abstract class RobotBase {
     // op mode
     public LinearOpMode opMode;
     public Telemetry telemetry;
@@ -49,7 +50,7 @@ public abstract class RobotGeneric {
      * @param opModeInstance The opmode (pass using "this" keyword)
      * @param telemetryInstance The opmode's telemetry
      */
-    protected RobotGeneric(@NonNull HardwareMap hardwareMap, LinearOpMode opModeInstance, Telemetry telemetryInstance,
+    protected RobotBase(@NonNull HardwareMap hardwareMap, LinearOpMode opModeInstance, Telemetry telemetryInstance,
                             int motorTicks, double wheelDiameter) {
         opMode = opModeInstance;
         telemetry = telemetryInstance;

@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+
 @Autonomous(name = "TF Vision Auto",group="Main")
 public class OpticalAnalogy extends LinearOpMode {
     BumbleBee control;
@@ -39,6 +40,7 @@ public class OpticalAnalogy extends LinearOpMode {
     @Override
     public void runOpMode() {
         control = new BumbleBee(hardwareMap, this, telemetry);
+        // initialize
         initVuforia();
         initTfod();
         if (tfod != null) {
@@ -54,14 +56,16 @@ public class OpticalAnalogy extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
+        // read sleeve at the beginning of match ~2s for 10 reads
         telemetry.addLine("Reading sleeve...");
         telemetry.update();
-        int zone = 2;
+        int zone = 1;
         int[] labelCounts = new int[3];
         if (tfod != null) {
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < 10; i++) { // read 10 times to prevent random errors
                 List<Recognition> recognitions = tfod.getRecognitions();
                 if (recognitions != null && recognitions.size() > 0) {
+                    // should only be seeing one recognition, if there are more the other is a misread
                     Recognition recognition = recognitions.get(0);
                     String label = recognition.getLabel();
                     switch (label) {
@@ -76,6 +80,7 @@ public class OpticalAnalogy extends LinearOpMode {
                 sleep(200);
             }
         }
+        // find which pos was read the most
         int max = 0;
         for(int x : labelCounts) if (x > max) max = x;
         if (max < 3) zone = 2; // seems like the yellow square gives it the most trouble
@@ -90,6 +95,7 @@ public class OpticalAnalogy extends LinearOpMode {
         telemetry.addData("Found zone", zone);
         telemetry.update();
 
+        // **** deposit first cone on nearest short pole ****
         control.forward(12, 250);
         for( DcMotorEx m : control.drivetrain) { m.setVelocity(0); }
         control.setSlidePos(BumbleBee.SHORTPOLE);
@@ -104,7 +110,11 @@ public class OpticalAnalogy extends LinearOpMode {
         control.clawClose();
         sleep(500);
         control.setSlidePos(BumbleBee.GROUND);
-        //************** done depositing short **********
+
+        // **** TODO: cycle
+        // yay
+
+        // **** move to a position to park ****
         control.backward(11, 250);
         sleep(500);
         control.left(59,200);
@@ -112,40 +122,38 @@ public class OpticalAnalogy extends LinearOpMode {
         for( DcMotorEx m : control.drivetrain) { m.setVelocity(0); }
         control.forward(53, 250);
         sleep(500);
-        if (zone==1){
-//            control.rotate(180);
-        }
-        else if (zone==2){
-            control.right(56,200);
-        }
-        else{
-            control.right(112,200);
-        }
+
+        // **** park in detected zone ****
+        control.right(56*(zone-1), 200);
+//        if (zone==1) {
+////            control.rotate(180);
+//        } else if (zone==2) {
+//            control.right(56,200);
+//        } else {
+//            control.right(112,200);
+//        }
 
     }
 
     private void initVuforia() {
+        // create vuforia parameters
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
-
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
         parameters.cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
-        // parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
-
+        // initialize vuforia
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
     }
 
     private void initTfod() {
+        // create tfod parameters
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
         tfodParameters.minResultConfidence = 0.70f;
         tfodParameters.isModelTensorFlow2 = true;
-        tfodParameters.inputSize = 640;
+        tfodParameters.inputSize = 320;
+        // initialize tfod
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
-
-        // Use loadModelFromAsset() if the TF Model is built in as an asset by Android Studio
-        // Use loadModelFromFile() if you have downloaded a custom team model to the Robot Controller's FLASH.
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABELS);
-        //tfod.loadModelFromFile(TFOD_MODEL_FILE, LABELS);
     }
 }

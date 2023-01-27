@@ -11,7 +11,6 @@ import org.openftc.easyopencv.OpenCvPipeline;
 
 public class SleeveDetectPipeline extends OpenCvPipeline {
 
-
     public enum DetectedColor {
         NONE,
         GREEN,
