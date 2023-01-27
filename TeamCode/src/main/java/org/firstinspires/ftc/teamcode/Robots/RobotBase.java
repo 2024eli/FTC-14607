@@ -63,7 +63,7 @@ public abstract class RobotBase {
         frontLeft.setDirection(DcMotorEx.Direction.REVERSE);
         backLeft.setDirection(DcMotorEx.Direction.REVERSE);
         drivetrain = new DcMotorEx[]{frontRight, frontLeft, backRight, backLeft};
-        for (DcMotorEx motor : drivetrain) motor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
+        for (DcMotorEx motor : drivetrain) motor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
 //        // odo
 //        odoRight = hardwareMap.get(DcMotorEx.class, "odoRight");

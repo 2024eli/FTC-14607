@@ -102,6 +102,7 @@ public class ManualFeedforwardTuner extends LinearOpMode {
                     // calculate and set the motor power
                     double profileTime = clock.seconds() - profileStart;
 
+                    //if (profileTime > activeProfile.duration()) {
                     if (profileTime > activeProfile.duration()) {
                         // generate a new profile
                         movingForwards = !movingForwards;

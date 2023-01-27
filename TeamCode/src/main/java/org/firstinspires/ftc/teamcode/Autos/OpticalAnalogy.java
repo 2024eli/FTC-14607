@@ -22,6 +22,8 @@ import java.util.List;
 public class OpticalAnalogy extends LinearOpMode {
     BumbleBee control;
 
+    public static int dist = 0;
+
     private static final String TFOD_MODEL_ASSET = "MobileNetV2-320-v1.tflite";
 
     private static final String[] LABELS = {"pos1", "pos2", "pos3"};
