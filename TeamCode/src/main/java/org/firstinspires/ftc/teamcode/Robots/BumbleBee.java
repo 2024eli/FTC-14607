@@ -21,11 +21,8 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
  */
 public class BumbleBee extends RobotBase {
     // interactors
-    public Servo claw;
-    public Servo lift;
-    public Servo swivel;
-    public DcMotorEx rightSlide;
-    public DcMotorEx leftSlide;
+    public Servo claw, lift, swivel;
+    public DcMotorEx rightSlide, leftSlide;
     public DcMotorEx[] slides;
     // controllers
     public PIDFController slidepidfcontroller;
@@ -86,26 +83,27 @@ public class BumbleBee extends RobotBase {
 
     // --------------------------------- MOVEMENT METHODS ------------------------------------------
 
+    // rotate using power
     public void rotateP(double degrees) {
         double motorSpeed = 500;
         if(degrees < 0) motorSpeed = -motorSpeed;
         float lastAngle = imu.getAngularOrientation().firstAngle;
         degrees += lastAngle;
-        drivepidfcontroller.reset();
-        drivepidfcontroller.setSetPoint(degrees);
+        headingPIDFController.reset();
+        headingPIDFController.setSetPoint(degrees);
         setRunMode(drivetrain, DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         do {
             lastAngle = imu.getAngularOrientation().firstAngle;
-            motorSpeed = -0.0096 * drivepidfcontroller.calculate(lastAngle);
+            motorSpeed = 0.01 * headingPIDFController.calculate(lastAngle);
             frontRight.setPower(-motorSpeed);
-            frontLeft.setVelocity(motorSpeed);
-            backRight.setVelocity(-motorSpeed);
-            backLeft.setVelocity(motorSpeed);
+            frontLeft.setPower(motorSpeed);
+            backRight.setPower(-motorSpeed);
+            backLeft.setPower(motorSpeed);
 
-        } while (!drivepidfcontroller.atSetPoint());
+        } while (!headingPIDFController.atSetPoint());
         //make sure motors stop
         for(DcMotorEx m : drivetrain) m.setPower(0);
-        drivepidfcontroller.reset();
+        headingPIDFController.reset();
     }
 
     // ------------------------------------ INTERACTOR METHODS -------------------------------------
@@ -140,7 +138,7 @@ public class BumbleBee extends RobotBase {
         leftSlide.setTargetPosition(height);
         for(DcMotorEx slide:slides) {
             slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-            slide.setVelocity( (change>0)? 900:750 );
+            slide.setVelocity( (change>0)? 900:800 );
         }
     }
 

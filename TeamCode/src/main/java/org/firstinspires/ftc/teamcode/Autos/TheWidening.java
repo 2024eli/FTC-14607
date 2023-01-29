@@ -66,13 +66,10 @@ public class TheWidening extends LinearOpMode {
         } else {
             zone = 3;
         }
-        if (zone != 0){
-            //turn off camera
-            webcam.stopStreaming();
-            webcam.stopRecordingPipeline();
-        }
+        webcam.stopStreaming();
+        webcam.stopRecordingPipeline();
 
-
+        // deposit on short junction
         control.forward(12, 250);
         for( DcMotorEx m : control.drivetrain) { m.setVelocity(0); }
         control.setSlidePos(BumbleBee.SHORTPOLE);
@@ -87,23 +84,24 @@ public class TheWidening extends LinearOpMode {
         control.clawClose();
         sleep(500);
         control.setSlidePos(BumbleBee.GROUND);
-        //************** done depositing short **********
+        // move around signal cone
         control.backward(11, 250);
         sleep(500);
         control.left(59,200);
         sleep(500);
-        for( DcMotorEx m : control.drivetrain) { m.setVelocity(0); }
-        control.forward(53, 250);
+        control.forward(50, 250);
         sleep(500);
-        if (zone==1){
-//            control.rotate(180);
-        }
-        else if (zone==2){
-           control.right(56,200);
-        }
-        else{
-            control.right(112,200);
-        }
+        // park
+        control.right(56*(zone-1), 200);
+//        if (zone==1){
+////            control.rotate(180);
+//        }
+//        else if (zone==2){
+//           control.right(56,200);
+//        }
+//        else{
+//            control.right(112,200);
+//        }
 
     }
 }

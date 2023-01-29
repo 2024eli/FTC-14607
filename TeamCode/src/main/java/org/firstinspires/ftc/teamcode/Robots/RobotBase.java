@@ -25,24 +25,16 @@ public abstract class RobotBase {
     public LinearOpMode opMode;
     public Telemetry telemetry;
     // drivetrain
-    public DcMotorEx frontLeft;
-    public DcMotorEx frontRight;
-    public DcMotorEx backLeft;
-    public DcMotorEx backRight;
+    public DcMotorEx frontLeft, frontRight, backLeft, backRight;
     public DcMotorEx[] drivetrain;
-
-//    public DcMotorEx odoRight;
-//    public DcMotorEx odoLeft;
-//    public DcMotorEx odoBack;
+//    public DcMotorEx odoRight, odoLeft, odoBack;
     // sensor/controllers
     public BNO055IMU imu;
-    public PIDFController drivepidfcontroller;
+    public PIDFController headingPIDFController;
+    public PIDFController[] drivetrainPIDFControllers;
     // hardware properties
     public final int motorTicks; //gobilda 5202 1150 rpm
-    public final double wheelDiameter; // cm
-    public final double wheelCircumference; // cm
-    // other constants
-
+    public final double wheelDiameter, wheelCircumference; //cm
 
     /**
      * Instantiate all variables related to the robot and the opmode, initialize imu and pid w/ parameters.
@@ -65,6 +57,14 @@ public abstract class RobotBase {
         drivetrain = new DcMotorEx[]{frontRight, frontLeft, backRight, backLeft};
         for (DcMotorEx motor : drivetrain) motor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
+        drivetrainPIDFControllers = new PIDFController[]{
+            new PIDFController(1,0,0,0), // FR
+            new PIDFController(1,0,0,0), // FL
+            new PIDFController(1,0,0,0), // BR
+            new PIDFController(1,0,0,0), // BL
+        };
+        for(PIDFController pid : drivetrainPIDFControllers) pid.setTolerance(1);
+
 //        // odo
 //        odoRight = hardwareMap.get(DcMotorEx.class, "odoRight");
 //        odoLeft = hardwareMap.get(DcMotorEx.class, "odoLeft");
@@ -80,9 +80,9 @@ public abstract class RobotBase {
         imuparams.loggingTag = "IMU";
         imu.initialize(imuparams);
 
-        drivepidfcontroller = new PIDFController(3, 5, 1, 0);
-        drivepidfcontroller.setIntegrationBounds(-5, 5);
-        drivepidfcontroller.setTolerance(1);
+        headingPIDFController = new PIDFController(0.005, 0, 0, 0);
+        headingPIDFController.setIntegrationBounds(-0.15, 0.15);
+        headingPIDFController.setTolerance(1);
 
         // init constants
         this.motorTicks = motorTicks;
@@ -110,7 +110,7 @@ public abstract class RobotBase {
      * @param distance (centimeters)
      * @return Ticks for the drivetrain motors to turn
      */
-    public int calculateTicks(double distance, boolean strafe) {
+    public int distanceToTicks(double distance, boolean strafe) {
         return (int) Math.round( (distance/this.wheelCircumference * motorTicks) * (strafe ? 1.2:1)  );
     }
 
@@ -139,7 +139,7 @@ public abstract class RobotBase {
      */
     public void forward(double distance, double speed) {
         resetDriveTrainEncoders();
-        int ticksToTravel = calculateTicks(distance, false);
+        int ticksToTravel = distanceToTicks(distance, false);
         for (DcMotorEx motor : drivetrain) {
             motor.setTargetPosition(ticksToTravel);
             motor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
@@ -156,7 +156,7 @@ public abstract class RobotBase {
     public void backward(double distance, double speed) {
         resetDriveTrainEncoders();
         for (DcMotorEx motor : drivetrain) {
-            motor.setTargetPosition(-calculateTicks(distance, false));
+            motor.setTargetPosition(-distanceToTicks(distance, false));
             motor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
             motor.setVelocity(speed);
         }
@@ -170,7 +170,7 @@ public abstract class RobotBase {
      */
     public void right(double distance, double speed) {
         resetDriveTrainEncoders();
-        int calculatedTicks = calculateTicks(distance, true);
+        int calculatedTicks = distanceToTicks(distance, true);
         frontRight.setTargetPosition(-calculatedTicks);
         frontLeft.setTargetPosition(calculatedTicks);
         backRight.setTargetPosition((int)(calculatedTicks*1.1));
@@ -189,7 +189,7 @@ public abstract class RobotBase {
      */
     public void left(double distance, double speed) {
         resetDriveTrainEncoders();
-        int calculatedTicks = calculateTicks(distance, true);
+        int calculatedTicks = distanceToTicks(distance, true);
         frontRight.setTargetPosition(calculatedTicks);
         frontLeft.setTargetPosition(-calculatedTicks);
         backRight.setTargetPosition(-calculatedTicks);
@@ -199,6 +199,29 @@ public abstract class RobotBase {
             motor.setVelocity(speed);
         }
         blockExecutionForRunToPosition(System.nanoTime());
+    }
+
+    public void rightExp(double distance, double power) {
+        resetDriveTrainEncoders();
+        int tickDistance = distanceToTicks(distance, true);
+        for(PIDFController pid : drivetrainPIDFControllers) pid.reset();
+        drivetrainPIDFControllers[0].setSetPoint(tickDistance);
+        drivetrainPIDFControllers[1].setSetPoint(-tickDistance);
+        drivetrainPIDFControllers[2].setTolerance(-tickDistance);
+        drivetrainPIDFControllers[3].setSetPoint(tickDistance);
+        double firstHeading = imu.getAngularOrientation().firstAngle;
+        headingPIDFController.setSetPoint(firstHeading);
+        do {
+            double angleCorrection = headingPIDFController.calculate(imu.getAngularOrientation().firstAngle);
+            frontRight.setVelocity(drivetrainPIDFControllers[0].calculate(frontRight.getCurrentPosition()) + angleCorrection);
+            frontLeft.setVelocity(drivetrainPIDFControllers[1].calculate(frontLeft.getCurrentPosition()) - angleCorrection);
+            backRight.setVelocity(drivetrainPIDFControllers[2].calculate(backRight.getCurrentPosition()) + angleCorrection);
+            backLeft.setVelocity(drivetrainPIDFControllers[3].calculate(backLeft.getCurrentPosition()) - angleCorrection);
+        } while(!drivetrainPIDFControllers[0].atSetPoint() && !drivetrainPIDFControllers[1].atSetPoint() &&
+                !drivetrainPIDFControllers[2].atSetPoint() && !drivetrainPIDFControllers[3].atSetPoint());
+
+        for(DcMotorEx m : drivetrain) m.setVelocity(0);
+
     }
 
     /**
@@ -211,20 +234,20 @@ public abstract class RobotBase {
         if(degrees < 0) motorSpeed = -motorSpeed;
         float lastAngle = imu.getAngularOrientation().firstAngle;
         degrees += lastAngle;
-        drivepidfcontroller.reset();
-        drivepidfcontroller.setSetPoint(degrees);
+        headingPIDFController.reset();
+        headingPIDFController.setSetPoint(degrees);
         do {
             lastAngle = imu.getAngularOrientation().firstAngle;
-            motorSpeed = -4.8 * drivepidfcontroller.calculate(lastAngle);
+            motorSpeed = 4.8 * headingPIDFController.calculate(lastAngle);
             frontRight.setVelocity(-motorSpeed);
             frontLeft.setVelocity(motorSpeed);
             backRight.setVelocity(-motorSpeed);
             backLeft.setVelocity(motorSpeed);
 
-        } while (!drivepidfcontroller.atSetPoint());
+        } while (!headingPIDFController.atSetPoint());
         //make sure motors stop
         for(DcMotorEx m : drivetrain) m.setVelocity(0);
-        drivepidfcontroller.reset();
+        headingPIDFController.reset();
     }
 
     // ------------------------------------ INTERACTOR METHODS -------------------------------------

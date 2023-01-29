@@ -18,8 +18,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-@Autonomous(name = "TF Vision Auto right",group="Main")
-public class OpticalAnalogy extends LinearOpMode {
+@Autonomous(name = "TF Vision Auto left",group="Main")
+public class OpticalAnalogy2 extends LinearOpMode {
     BumbleBee control;
 
     public static int dist = 0;
@@ -30,10 +30,10 @@ public class OpticalAnalogy extends LinearOpMode {
 
     private static final String VUFORIA_KEY =
             "AY6BsCf/////AAABmZ6ima003kgksPYl8C+B8VZ1LH2yueEfFxy4p14SPPRdHkGuEtSIewtOX5QIPU6XkSPde" +
-    "k3tAIssoQkq1jF8hmsZINtLhHYNPojqBvsizbouwQTwhRm+Xej0KFhPo5yvOTJZRuJ5faItG0UGRTJ5u3wpfaWohaEyDwFgl" +
-    "DsYeTIhp0zXk0cVhjctUpYPnd5advw0jRBfEoa5GV+rHi/kxPzvzyvPrVevqzLyRPRDBMneVn6MnD9/Nyvb5QUh9ZGnRBZxT" +
-    "5ilYq1yWiP9R98pZdYnGwYStzkz+hZDHWluCwwduRF4blVS2W6jgC0RZfqMWT+7rG58RdpjjhzH7CYkcIW2R256kPTP9b85O" +
-    "prB1eap";
+                    "k3tAIssoQkq1jF8hmsZINtLhHYNPojqBvsizbouwQTwhRm+Xej0KFhPo5yvOTJZRuJ5faItG0UGRTJ5u3wpfaWohaEyDwFgl" +
+                    "DsYeTIhp0zXk0cVhjctUpYPnd5advw0jRBfEoa5GV+rHi/kxPzvzyvPrVevqzLyRPRDBMneVn6MnD9/Nyvb5QUh9ZGnRBZxT" +
+                    "5ilYq1yWiP9R98pZdYnGwYStzkz+hZDHWluCwwduRF4blVS2W6jgC0RZfqMWT+7rG58RdpjjhzH7CYkcIW2R256kPTP9b85O" +
+                    "prB1eap";
 
     private VuforiaLocalizer vuforia; // vuforia used only for feeding camera stream to tfod, no localization
 
@@ -97,11 +97,11 @@ public class OpticalAnalogy extends LinearOpMode {
         telemetry.addData("Found zone", zone);
         telemetry.update();
 
-        // deposit cone to short pole
+        // deposit on short pole
         control.forward(12, 250);
         control.setSlidePos(BumbleBee.SHORTPOLE);
         sleep(500);
-        control.setSwivel(0.4);
+        control.setSwivel(0.92);
         control.setLift(0.1);
         sleep(1000);
         control.clawOpen();
@@ -115,23 +115,24 @@ public class OpticalAnalogy extends LinearOpMode {
         // move around signal cone
         control.backward(11, 250);
         sleep(500);
-        control.left(59,200);
+        control.right(59,200);
         sleep(500);
         control.forward(49, 250);
         sleep(500);
 
-        // park
-        //control.right(56*(zone-1), 200);
+        // **** park in detected zone ****
+        //control.left(56*(3-zone), 200);
         switch (zone) {
             case 1:
+                control.left(130, 200);
                 break;
             case 2:
-                control.right(58, 200);
+                control.left(58, 200);
                 break;
             case 3:
-                control.right(140, 200);
                 break;
         }
+
     }
 
     private void initVuforia() {

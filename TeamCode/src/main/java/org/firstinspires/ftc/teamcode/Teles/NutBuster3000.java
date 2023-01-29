@@ -15,9 +15,9 @@ public class NutBuster3000 extends LinearOpMode {
 
         waitForStart();
         while(opModeIsActive()) {
-
-
-            telemetry.addLine("Opmode Running");
+            telemetry.addData("First Angle", control.imu.getAngularOrientation().firstAngle);
+            telemetry.addData("Second Angle", control.imu.getAngularOrientation().secondAngle);
+            telemetry.addData("Third Angle", control.imu.getAngularOrientation().thirdAngle);
             telemetry.update();
         }
     }
