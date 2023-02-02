@@ -138,7 +138,7 @@ public class BumbleBee extends RobotBase {
         leftSlide.setTargetPosition(height);
         for(DcMotorEx slide:slides) {
             slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-            slide.setVelocity( (change>0)? 900:800 );
+            slide.setVelocity( (change>0)? 1200:1000 );
         }
     }
 

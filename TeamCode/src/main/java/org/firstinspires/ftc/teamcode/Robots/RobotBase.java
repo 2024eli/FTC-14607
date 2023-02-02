@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 
 import java.lang.Math;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDFController;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
@@ -20,18 +21,23 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
  * RobotBase is to be extended by all hardware control classes for basic functionality
  * and so u write less
  */
+@Config
 public abstract class RobotBase {
     // op mode
     public LinearOpMode opMode;
     public Telemetry telemetry;
     // drivetrain
-    public DcMotorEx frontLeft, frontRight, backLeft, backRight;
+    public DcMotorEx frontRight, frontLeft, backRight, backLeft;
     public DcMotorEx[] drivetrain;
 //    public DcMotorEx odoRight, odoLeft, odoBack;
     // sensor/controllers
     public BNO055IMU imu;
-    public PIDFController headingPIDFController;
+    public static PIDFController headingPIDFController = new PIDFController(3,0,0,0);
     public PIDFController[] drivetrainPIDFControllers;
+    public static PIDFController FRPID =   new PIDFController(1.47,0.06,0.1,0.3);// FR
+    public static PIDFController FLPID = new PIDFController(1.6,0.06,0.1,0.3); // FL
+    public static PIDFController BRPID = new PIDFController(1.7,0.06,0.1,0.3); // BR
+    public static PIDFController BLPID = new PIDFController(1.9,0.06,0.1,0.3); // BL
     // hardware properties
     public final int motorTicks; //gobilda 5202 1150 rpm
     public final double wheelDiameter, wheelCircumference; //cm
@@ -57,12 +63,7 @@ public abstract class RobotBase {
         drivetrain = new DcMotorEx[]{frontRight, frontLeft, backRight, backLeft};
         for (DcMotorEx motor : drivetrain) motor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
-        drivetrainPIDFControllers = new PIDFController[]{
-            new PIDFController(1,0,0,0), // FR
-            new PIDFController(1,0,0,0), // FL
-            new PIDFController(1,0,0,0), // BR
-            new PIDFController(1,0,0,0), // BL
-        };
+        drivetrainPIDFControllers = new PIDFController[]{FRPID, FLPID, BRPID, BLPID};
         for(PIDFController pid : drivetrainPIDFControllers) pid.setTolerance(1);
 
 //        // odo
@@ -79,10 +80,6 @@ public abstract class RobotBase {
         imuparams.loggingEnabled = true;
         imuparams.loggingTag = "IMU";
         imu.initialize(imuparams);
-
-        headingPIDFController = new PIDFController(0.005, 0, 0, 0);
-        headingPIDFController.setIntegrationBounds(-0.15, 0.15);
-        headingPIDFController.setTolerance(1);
 
         // init constants
         this.motorTicks = motorTicks;
@@ -101,7 +98,7 @@ public abstract class RobotBase {
      * @param motors drivetrain or slides
      * @param mode DcMotorEx.RunMode
      */
-    public void setRunMode(DcMotorEx[] motors, DcMotorEx.RunMode mode) {
+    public void setRunMode(@NonNull DcMotorEx[] motors, DcMotorEx.RunMode mode) {
         for (DcMotorEx motor : motors) motor.setMode(mode);
     }
 
@@ -122,7 +119,7 @@ public abstract class RobotBase {
         while (opMode.opModeIsActive()) {
             if (!drivetrain[0].isBusy()) break;
                 // stop motors after 10 seconds
-            else if (startTime > 0 && (System.nanoTime() - startTime > 10000000000l)) {
+            else if (startTime > 0 && (System.nanoTime() - startTime > 10000000000L)) {
                 for(DcMotorEx m : drivetrain) m.setVelocity(0);
                 break;
             }
@@ -201,22 +198,30 @@ public abstract class RobotBase {
         blockExecutionForRunToPosition(System.nanoTime());
     }
 
-    public void rightExp(double distance, double power) {
+    /**
+     * Experimental strafe that uses imu to maintain orientation
+     * @param distance (cm) positive is right, negative is left
+     */
+    public void strafeExp(double distance) {
         resetDriveTrainEncoders();
         int tickDistance = distanceToTicks(distance, true);
         for(PIDFController pid : drivetrainPIDFControllers) pid.reset();
-        drivetrainPIDFControllers[0].setSetPoint(tickDistance);
-        drivetrainPIDFControllers[1].setSetPoint(-tickDistance);
-        drivetrainPIDFControllers[2].setTolerance(-tickDistance);
-        drivetrainPIDFControllers[3].setSetPoint(tickDistance);
+        drivetrainPIDFControllers[0].setSetPoint(-tickDistance); //fr
+        drivetrainPIDFControllers[1].setSetPoint(tickDistance);
+        drivetrainPIDFControllers[2].setSetPoint(tickDistance); //br
+        drivetrainPIDFControllers[3].setSetPoint(-tickDistance);
         double firstHeading = imu.getAngularOrientation().firstAngle;
-        headingPIDFController.setSetPoint(firstHeading);
+        boolean flip = firstHeading < -90 || firstHeading > 90;
+        headingPIDFController.setSetPoint(flip && firstHeading<0 ? -firstHeading:firstHeading);
         do {
-            double angleCorrection = headingPIDFController.calculate(imu.getAngularOrientation().firstAngle);
+            float angleCorrection = 0;
+            float heading = imu.getAngularOrientation().firstAngle;
+            // account for the fact that the angle goes 179, 180, then -180, -179
+            //float angleCorrection = headingPIDFController.calculate(heading + (flip && heading<0 ? 360:0));
             frontRight.setVelocity(drivetrainPIDFControllers[0].calculate(frontRight.getCurrentPosition()) + angleCorrection);
             frontLeft.setVelocity(drivetrainPIDFControllers[1].calculate(frontLeft.getCurrentPosition()) - angleCorrection);
-            backRight.setVelocity(drivetrainPIDFControllers[2].calculate(backRight.getCurrentPosition()) + angleCorrection);
-            backLeft.setVelocity(drivetrainPIDFControllers[3].calculate(backLeft.getCurrentPosition()) - angleCorrection);
+            backRight.setVelocity(drivetrainPIDFControllers[2].calculate(backRight.getCurrentPosition()) + 1.2*angleCorrection);
+            backLeft.setVelocity(drivetrainPIDFControllers[3].calculate(backLeft.getCurrentPosition()) - 1.2*angleCorrection);
         } while(!drivetrainPIDFControllers[0].atSetPoint() && !drivetrainPIDFControllers[1].atSetPoint() &&
                 !drivetrainPIDFControllers[2].atSetPoint() && !drivetrainPIDFControllers[3].atSetPoint());
 
@@ -250,8 +255,5 @@ public abstract class RobotBase {
         headingPIDFController.reset();
     }
 
-    // ------------------------------------ INTERACTOR METHODS -------------------------------------
-
-    // none
 
 }

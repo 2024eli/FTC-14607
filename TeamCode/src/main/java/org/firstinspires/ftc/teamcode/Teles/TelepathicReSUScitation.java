@@ -35,6 +35,7 @@ public class TelepathicReSUScitation extends LinearOpMode {
     private boolean movingSlide = false;
     private byte slideDirection = 1; // direction the slides were just previously moving -1 is down, 1 is up, 0 is for set heights
     private int lastSlidePos = 0;
+    private boolean movingToGround = false;
 
     /**
      * Moves the drivetrain (the four wheels). Includes strafing and rotation
@@ -92,17 +93,17 @@ public class TelepathicReSUScitation extends LinearOpMode {
      */
     public int moveSlides(@NonNull Gamepad gamepad) {
         int slidePos = control.getSlidePos();
-        double up = gamepad.right_stick_y;
-        double down = -gamepad.right_stick_y;
+        double up = -gamepad.right_stick_y;
+        double down = gamepad.right_stick_y;
 
         if(gamepad.dpad_up) fastSlides = true;
         else if(gamepad.dpad_down) fastSlides = false;
-        int SLIDE_UP_VELO = (int)(900 * (fastSlides ? 1:0.6));
-        int SLIDE_DOWN_VELO = (int)(-650 * (fastSlides ? 1:0.45));
+        int SLIDE_UP_VELO = (int)(1000 * (fastSlides ? 1:0.6));
+        int SLIDE_DOWN_VELO = (int)(-800 * (fastSlides ? 1:0.45));
         // trigger: continuous
         if (up>0 || down>0) {
-            if(up>0 && slidePos>= BumbleBee.SLIDETOP-20) control.setSlidePos(BumbleBee.SLIDETOP);
-            else if(down>0 && slidePos<= BumbleBee.SLIDEBOTTOM+20) control.setSlidePos(BumbleBee.SLIDEBOTTOM);
+            if(up>0 && slidePos >= BumbleBee.SLIDETOP-30) control.setSlidePos(BumbleBee.SLIDETOP);
+            else if(down>0 && slidePos <= BumbleBee.SLIDEBOTTOM+30) control.setSlidePos(BumbleBee.SLIDEBOTTOM);
             else {
                 movingSlide = true;
                 double velo = 0;
@@ -112,17 +113,23 @@ public class TelepathicReSUScitation extends LinearOpMode {
                     velo = SLIDE_DOWN_VELO; slideDirection = -1; }
                 control.setSlideVelo(velo);
             }
-        // a,b,x,y, preset positions
+        // a,b,x,y, preset positions or hold current position
         } else {
             if (movingSlide) {
                 movingSlide = false;
-                lastSlidePos = slidePos + 10*slideDirection;
+                lastSlidePos = slidePos + 5*slideDirection;
             }
             int setPos = lastSlidePos;
-            if (gamepad.x) {setPos = BumbleBee.TALLPOLE; movingSlide = true; slideDirection=0;}
-            else if (gamepad.y) {setPos = BumbleBee.MEDIUMPOLE; movingSlide = true; slideDirection=0;}
-            else if (gamepad.b) {setPos = BumbleBee.SHORTPOLE; movingSlide = true; slideDirection=0;}
-            else if (gamepad.a) {setPos = BumbleBee.GROUND; movingSlide = true; slideDirection=0;}
+            slideDirection = 0;
+            movingSlide = true;
+            if (gamepad.x) {setPos = BumbleBee.TALLPOLE; control.setLift(0.3); } // raise lift when setting to pole height
+            else if (gamepad.y) {setPos = BumbleBee.MEDIUMPOLE; control.setLift(0.3);}
+            else if (gamepad.b) {setPos = BumbleBee.SHORTPOLE; control.setLift(0.3);}
+            else if (gamepad.a || movingToGround) {setPos = BumbleBee.GROUND; }
+            else {movingSlide = false; }
+            // stop moving to ground if reached it
+            if (slidePos < 20) movingToGround = false;
+
             //...
             setPos = Range.clip(setPos, BumbleBee.SLIDEBOTTOM, BumbleBee.SLIDETOP);
             control.setSlidePos(setPos);
@@ -139,8 +146,10 @@ public class TelepathicReSUScitation extends LinearOpMode {
             control.clawClose();
             sleep(300);
             control.setLift(1);
+        } else if (gamepad.left_bumper) {
+            control.clawOpen();
+            movingToGround = true;
         }
-        else if (gamepad.left_bumper) control.clawOpen();
     }
 
     /**
@@ -151,7 +160,10 @@ public class TelepathicReSUScitation extends LinearOpMode {
         if (gamepad.left_bumper && gamepad.right_bumper) swivelPos = 0.666; // straighten arm
         else if (gamepad.right_bumper) swivelPos += 0.01;
         else if (gamepad.left_bumper) swivelPos -= 0.01;
-        swivelPos = Range.clip(swivelPos, 0.4, 0.9);
+        // dont swivel into the robot
+        swivelPos = (lastSlidePos > 100) ?
+                Range.clip(swivelPos, 0.4, 0.92):
+                Range.clip(swivelPos, 0.56, 0.75);
         control.setSwivel(swivelPos);
     }
 
