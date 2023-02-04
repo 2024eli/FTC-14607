@@ -145,10 +145,10 @@ public class EjaculativeLinguistics extends LinearOpMode {
             control.backward(4,400);
         }
         else if (zone==2){
-           control.forward(20,400);
+           control.forward(26,400);
         }
         else{
-            control.forward(54,400);
+            control.forward(58,400);
         }
         sleep(100);
         control.setLift(1);
