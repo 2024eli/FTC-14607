@@ -17,6 +17,8 @@ import org.openftc.easyopencv.OpenCvWebcam;
 public class TheWidening extends LinearOpMode {
     BumbleBee control;
     OpenCvWebcam webcam;
+    public static int SPEED = 400;
+    public static int DISTANCE = 60;
 
     @Override
     public void runOpMode() {
@@ -46,16 +48,13 @@ public class TheWidening extends LinearOpMode {
             }
 
         });
-//        webcam.stopStreaming();
-//        webcam.closeCameraDevice();
-
 
         waitForStart();
 //auto thoomin
         SleeveDetectPipeline.DetectedColor color = pipeline.getDetectedColor();
         telemetry.addData("Detected color", color);
         telemetry.update();
-        sleep(3000);
+        sleep(1000);
 
         int zone = 0;
         SleeveDetectPipeline.DetectedColor DetectedColor;
@@ -70,7 +69,7 @@ public class TheWidening extends LinearOpMode {
         webcam.stopRecordingPipeline();
 
         // deposit on short junction
-        control.forward(12, 250);
+        control.forward(12, 300);
         for( DcMotorEx m : control.drivetrain) { m.setVelocity(0); }
         control.setSlidePos(BumbleBee.SHORTPOLE);
         sleep(500);
@@ -81,18 +80,14 @@ public class TheWidening extends LinearOpMode {
         sleep(500);
         control.setSwivel(0.66);
         control.setLift(1);
-        control.clawClose();
         sleep(500);
         control.setSlidePos(BumbleBee.GROUND);
-        // move around signal cone
-        control.backward(11, 250);
-        sleep(500);
-        control.left(59,200);
-        sleep(500);
+
+        // pushcone
         control.forward(50, 250);
-        sleep(500);
-        // park
-        control.right(56*(zone-1), 200);
+        sleep(200);
+        control.forward(24, 250);
+
 //        if (zone==1){
 ////            control.rotate(180);
 //        }

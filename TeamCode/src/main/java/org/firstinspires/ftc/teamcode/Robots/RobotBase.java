@@ -153,13 +153,16 @@ public class RobotBase {
      */
     public void forward(double distance, double speed) {
         resetDriveTrainEncoders();
-        int ticksToTravel = distanceToTicks(distance, false);
+        int calculatedTicks = distanceToTicks(distance, true);
+        frontRight.setTargetPosition(calculatedTicks);
+        frontLeft.setTargetPosition((int)(calculatedTicks*1.05));
+        backRight.setTargetPosition(calculatedTicks);
+        backLeft.setTargetPosition((int)(calculatedTicks*1.05));
         for (DcMotorEx motor : drivetrain) {
-            motor.setTargetPosition(ticksToTravel);
             motor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
             motor.setVelocity(speed);
         }
-        blockExecutionForRunToPosition(System.nanoTime());
+        blockExecutionForRunToPosition(-1);
     }
 
     /**
@@ -169,8 +172,12 @@ public class RobotBase {
      */
     public void backward(double distance, double speed) {
         resetDriveTrainEncoders();
+        int calculatedTicks = distanceToTicks(distance, true);
+        frontRight.setTargetPosition(-calculatedTicks);
+        frontLeft.setTargetPosition((int)(-calculatedTicks*1.05));
+        backRight.setTargetPosition(-calculatedTicks);
+        backLeft.setTargetPosition((int)(-calculatedTicks*1.05));
         for (DcMotorEx motor : drivetrain) {
-            motor.setTargetPosition(-distanceToTicks(distance, false));
             motor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
             motor.setVelocity(speed);
         }

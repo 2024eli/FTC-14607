@@ -24,8 +24,8 @@ public class SleeveDetectPipeline extends OpenCvPipeline {
     // Width and height for the bounding box
 //    public static int REGION_WIDTH = 30;
 //    public static int REGION_HEIGHT = 50;
-    public static int REGION_WIDTH = 60;
-    public static int REGION_HEIGHT = 100;
+    public static int REGION_WIDTH = 40;
+    public static int REGION_HEIGHT = 80;
 
     // Lower and upper boundaries for colors
     private static final Scalar
