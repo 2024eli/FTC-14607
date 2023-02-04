@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 
 import java.lang.Math;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDFController;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
@@ -19,6 +20,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 /**
  * 2022-2023 PowerPlay v1 Robot
  */
+@Config
 public class BumbleBee extends RobotBase {
     // interactors
     public Servo claw, lift, swivel;

@@ -22,7 +22,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
  * and so u write less
  */
 @Config
-public abstract class RobotBase {
+public class RobotBase {
     // op mode
     public LinearOpMode opMode;
     public Telemetry telemetry;
@@ -32,12 +32,21 @@ public abstract class RobotBase {
 //    public DcMotorEx odoRight, odoLeft, odoBack;
     // sensor/controllers
     public BNO055IMU imu;
-    public static PIDFController headingPIDFController = new PIDFController(3,0,0,0);
+    public static double headP = 3.5;
+    public static double headI = 0.4;
+    public static double headD = 0.2f;
+    public static double headF = 0.3;
+    public static PIDFController headingPIDFController = new PIDFController(headP,headI,headD,headF);
+    public PIDFController[] drivetrainStrafePIDFControllers;
+    public static PIDFController FRStrafePID =   new PIDFController(1.47,0.06,0.1,0.3);// FR
+    public static PIDFController FLStrafePID = new PIDFController(1.6,0.06,0.1,0.3); // FL
+    public static PIDFController BRStrafePID = new PIDFController(1.7,0.06,0.1,0.3); // BR
+    public static PIDFController BLStrafePID = new PIDFController(1.9,0.06,0.1,0.3); // BL
     public PIDFController[] drivetrainPIDFControllers;
-    public static PIDFController FRPID =   new PIDFController(1.47,0.06,0.1,0.3);// FR
-    public static PIDFController FLPID = new PIDFController(1.6,0.06,0.1,0.3); // FL
-    public static PIDFController BRPID = new PIDFController(1.7,0.06,0.1,0.3); // BR
-    public static PIDFController BLPID = new PIDFController(1.9,0.06,0.1,0.3); // BL
+    public static PIDFController FRPID =   new PIDFController(1.1,0,0.1,0.2);// FR
+    public static PIDFController FLPID = new PIDFController(1.1,0,0.1,0.2); // FL
+    public static PIDFController BRPID = new PIDFController(1.2,0,0.13,0.2); // BR
+    public static PIDFController BLPID = new PIDFController(1.22,0,0.13,0.2); // BL
     // hardware properties
     public final int motorTicks; //gobilda 5202 1150 rpm
     public final double wheelDiameter, wheelCircumference; //cm
@@ -63,9 +72,13 @@ public abstract class RobotBase {
         drivetrain = new DcMotorEx[]{frontRight, frontLeft, backRight, backLeft};
         for (DcMotorEx motor : drivetrain) motor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
+        drivetrainStrafePIDFControllers = new PIDFController[]{FRStrafePID, FLStrafePID, BRStrafePID, BLStrafePID};
+        for(PIDFController pid : drivetrainStrafePIDFControllers) pid.setTolerance(1);
+
         drivetrainPIDFControllers = new PIDFController[]{FRPID, FLPID, BRPID, BLPID};
         for(PIDFController pid : drivetrainPIDFControllers) pid.setTolerance(1);
 
+        headingPIDFController.setTolerance(0.8);
 //        // odo
 //        odoRight = hardwareMap.get(DcMotorEx.class, "odoRight");
 //        odoLeft = hardwareMap.get(DcMotorEx.class, "odoLeft");
@@ -128,6 +141,10 @@ public abstract class RobotBase {
     }
 
     // --------------------------------- MOVEMENT METHODS ------------------------------------------
+
+    public void brake() {
+        for (DcMotorEx motor : drivetrain) motor.setVelocity(0);
+    }
 
     /**
      * Move the robot [distance] cm forwards using encoders
@@ -198,18 +215,43 @@ public abstract class RobotBase {
         blockExecutionForRunToPosition(System.nanoTime());
     }
 
+    public void forwardExp(double distance) {
+        resetDriveTrainEncoders();
+        int tickDistance = distanceToTicks(distance, false);
+        for(PIDFController pid : drivetrainPIDFControllers) {
+            pid.reset();
+            pid.setSetPoint(tickDistance);
+        }
+        double firstHeading = imu.getAngularOrientation().firstAngle;
+        boolean flip = firstHeading < -90 || firstHeading > 90;
+        headingPIDFController.setSetPoint(flip && firstHeading<0 ? -firstHeading:firstHeading);
+        do {
+            //float angleCorrection = 0;
+            float heading = imu.getAngularOrientation().firstAngle;
+            // account for the fact that the angle goes 179, 180, then -180, -179
+            double angleCorrection = headingPIDFController.calculate(heading + (flip && heading<0 ? 360:0));
+            frontRight.setVelocity(FRPID.calculate(frontRight.getCurrentPosition()) + angleCorrection);
+            frontLeft.setVelocity(FLPID.calculate(frontLeft.getCurrentPosition()) - angleCorrection);
+            backRight.setVelocity(BRPID.calculate(backRight.getCurrentPosition()) + 1.1*angleCorrection);
+            backLeft.setVelocity(BLPID.calculate(backLeft.getCurrentPosition()) - 1.1*angleCorrection);
+        } while(!drivetrainPIDFControllers[0].atSetPoint() && !drivetrainPIDFControllers[1].atSetPoint() &&
+                !drivetrainPIDFControllers[2].atSetPoint() && !drivetrainPIDFControllers[3].atSetPoint());
+
+        brake();
+    }
+
     /**
      * Experimental strafe that uses imu to maintain orientation
      * @param distance (cm) positive is right, negative is left
      */
     public void strafeExp(double distance) {
         resetDriveTrainEncoders();
-        int tickDistance = distanceToTicks(distance, true);
-        for(PIDFController pid : drivetrainPIDFControllers) pid.reset();
-        drivetrainPIDFControllers[0].setSetPoint(-tickDistance); //fr
-        drivetrainPIDFControllers[1].setSetPoint(tickDistance);
-        drivetrainPIDFControllers[2].setSetPoint(tickDistance); //br
-        drivetrainPIDFControllers[3].setSetPoint(-tickDistance);
+        int tickDistance = distanceToTicks(distance, false);
+        for(PIDFController pid : drivetrainStrafePIDFControllers) pid.reset();
+        FRStrafePID.setSetPoint(-tickDistance); //fr
+        FLStrafePID.setSetPoint(tickDistance);
+        BRStrafePID.setSetPoint(tickDistance); //br
+        BLStrafePID.setSetPoint(-tickDistance);
         double firstHeading = imu.getAngularOrientation().firstAngle;
         boolean flip = firstHeading < -90 || firstHeading > 90;
         headingPIDFController.setSetPoint(flip && firstHeading<0 ? -firstHeading:firstHeading);
@@ -218,12 +260,12 @@ public abstract class RobotBase {
             float heading = imu.getAngularOrientation().firstAngle;
             // account for the fact that the angle goes 179, 180, then -180, -179
             //float angleCorrection = headingPIDFController.calculate(heading + (flip && heading<0 ? 360:0));
-            frontRight.setVelocity(drivetrainPIDFControllers[0].calculate(frontRight.getCurrentPosition()) + angleCorrection);
-            frontLeft.setVelocity(drivetrainPIDFControllers[1].calculate(frontLeft.getCurrentPosition()) - angleCorrection);
-            backRight.setVelocity(drivetrainPIDFControllers[2].calculate(backRight.getCurrentPosition()) + 1.2*angleCorrection);
-            backLeft.setVelocity(drivetrainPIDFControllers[3].calculate(backLeft.getCurrentPosition()) - 1.2*angleCorrection);
-        } while(!drivetrainPIDFControllers[0].atSetPoint() && !drivetrainPIDFControllers[1].atSetPoint() &&
-                !drivetrainPIDFControllers[2].atSetPoint() && !drivetrainPIDFControllers[3].atSetPoint());
+            frontRight.setVelocity(FRStrafePID.calculate(frontRight.getCurrentPosition()) + angleCorrection);
+            frontLeft.setVelocity(FLStrafePID.calculate(frontLeft.getCurrentPosition()) - angleCorrection);
+            backRight.setVelocity(BRStrafePID.calculate(backRight.getCurrentPosition()) + 1.1*angleCorrection);
+            backLeft.setVelocity(BLStrafePID.calculate(backLeft.getCurrentPosition()) - 1.1*angleCorrection);
+        } while(!drivetrainStrafePIDFControllers[0].atSetPoint() && !drivetrainStrafePIDFControllers[1].atSetPoint() &&
+                !drivetrainStrafePIDFControllers[2].atSetPoint() && !drivetrainStrafePIDFControllers[3].atSetPoint());
 
         for(DcMotorEx m : drivetrain) m.setVelocity(0);
 
@@ -235,15 +277,28 @@ public abstract class RobotBase {
      * @param degrees angle to rotate to in degrees, SHOULD BE BETWEEN -180 AND 180
      */
     public void rotate(double degrees) {
-        double motorSpeed = 500;
-        if(degrees < 0) motorSpeed = -motorSpeed;
-        float lastAngle = imu.getAngularOrientation().firstAngle;
+        double motorSpeed = 0;
+        float lastAngle = -imu.getAngularOrientation().firstAngle;
         degrees += lastAngle;
+        boolean flip = degrees > 179 || degrees < -179;
+        boolean sign = lastAngle >= 0; // true if angle positive, false if negative
         headingPIDFController.reset();
         headingPIDFController.setSetPoint(degrees);
         do {
-            lastAngle = imu.getAngularOrientation().firstAngle;
-            motorSpeed = 4.8 * headingPIDFController.calculate(lastAngle);
+            lastAngle = -imu.getAngularOrientation().firstAngle;
+            if (flip) {
+                // if angle was originally positive but the current angle is negative
+                // add 360 to flip the sign
+                if (sign && lastAngle < 0) lastAngle += 360;
+                else if (!sign && lastAngle > 0) lastAngle -= 360;
+            }
+            motorSpeed = headingPIDFController.calculate(lastAngle);
+            telemetry.addData("Motor Speed", motorSpeed);
+            telemetry.addData("degrees", degrees);
+            telemetry.addData("current angle", lastAngle);
+            telemetry.addData("flip", flip);
+            telemetry.addData("sign", sign);
+            telemetry.update();
             frontRight.setVelocity(-motorSpeed);
             frontLeft.setVelocity(motorSpeed);
             backRight.setVelocity(-motorSpeed);

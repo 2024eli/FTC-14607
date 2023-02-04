@@ -33,7 +33,9 @@ public class PenetratingPerpetrator extends LinearOpMode {
         waitForStart();
         telemetry.addData("Status", "running");
         telemetry.update();
-        control.forward(DISTANCE,SPEED);
+        control.forwardExp(DISTANCE);
+        control.brake();
+        sleep(300);
         telemetry.addData("Status", "completed");
         telemetry.update();
         sleep(2000);

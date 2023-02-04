@@ -52,38 +52,35 @@ public class TelepathicReSUScitation extends LinearOpMode {
         float x = gamepad.left_stick_x * speedFactor * 1.75f;
         float rx = gamepad.right_stick_x * speedFactor * 0.6f;
 
-        float frontLeftPower = (y + x + rx);
-        float backLeftPower = (y - x + rx) * 1.17f;
-        float frontRightPower = (y - x - rx);
-        float backRightPower = (y + x - rx) * 1.15f;
-        boolean braking = false;
-//        if(y!=0 || x!=0 || rx!=0) {
-//            movingDrivetrain = true;
-//            lastY = y;
-//            lastX = x;
-//            lastRX = rx;
-//        } else if(movingDrivetrain) {
-//            movingDrivetrain = false;
-//            braking = true;
-//            frontLeftPower = -1*(lastY + lastX + lastRX);
-//            backLeftPower = -1*(lastY - lastX + lastRX) * 1.17f;
-//            frontRightPower = -1*(lastY - lastX - lastRX);
-//            backRightPower = -1*(lastY + lastX - lastRX) * 1.15f;
-//        }
+        // brake using setVelocity
+        if(y == 0 && x == 0 && rx == 0) {
+            for (DcMotorEx m: control.drivetrain) {
+                m.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                m.setVelocity(0);
+            }
+            return new float[]{0,0,0,0};
+        } else {
+            for (DcMotorEx m : control.drivetrain) m.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        float[] driveTrainPowers = new float[] {
-                Float.parseFloat(fourDecimals.format((double)frontLeftPower)),
-                Float.parseFloat(fourDecimals.format((double)backLeftPower)),
-                Float.parseFloat(fourDecimals.format((double)frontRightPower)),
-                Float.parseFloat(fourDecimals.format((double)backRightPower)),
-        };
-        control.frontLeft.setPower(frontLeftPower);
-        control.backLeft.setPower(backLeftPower);
-        control.frontRight.setPower(frontRightPower);
-        control.backRight.setPower(backRightPower);
-        // if(braking) sleep(100);
+            float frontLeftPower = (y + x + rx);
+            float backLeftPower = (y - x + rx) * 1.17f;
+            float frontRightPower = (y - x - rx);
+            float backRightPower = (y + x - rx) * 1.15f;
+            boolean braking = false;
 
-        return driveTrainPowers;
+            float[] driveTrainPowers = new float[]{
+                    Float.parseFloat(fourDecimals.format((double) frontLeftPower)),
+                    Float.parseFloat(fourDecimals.format((double) backLeftPower)),
+                    Float.parseFloat(fourDecimals.format((double) frontRightPower)),
+                    Float.parseFloat(fourDecimals.format((double) backRightPower)),
+            };
+            control.frontLeft.setPower(frontLeftPower);
+            control.backLeft.setPower(backLeftPower);
+            control.frontRight.setPower(frontRightPower);
+            control.backRight.setPower(backRightPower);
+
+            return driveTrainPowers;
+        }
     }
 
     /**
