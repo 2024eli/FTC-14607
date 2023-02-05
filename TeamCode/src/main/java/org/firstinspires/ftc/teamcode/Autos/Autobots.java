@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import org.firstinspires.ftc.teamcode.Robots.BumbleBee;
 
-@Autonomous(name = "Forward - setPower", group="Backup")
+@Autonomous(name = "Backward - setPower", group="MzBackup")
 public class Autobots extends LinearOpMode {
     BumbleBee control;
 
@@ -17,10 +17,10 @@ public class Autobots extends LinearOpMode {
         control.backLeft.setDirection(DcMotorEx.Direction.REVERSE);
 
         waitForStart();
-        control.frontRight.setPower(0.5);
-        control.frontLeft.setPower(0.5);
-        control.backLeft.setPower(0.5);
-        control.backRight.setPower(0.5);
+        control.frontRight.setPower(-0.5);
+        control.frontLeft.setPower(-0.5);
+        control.backLeft.setPower(-0.5);
+        control.backRight.setPower(-0.5);
         sleep(1000);
     }
 }

@@ -14,7 +14,7 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-@Autonomous(name = "FINALRIGHTAUTO1+2", group="Test")
+@Autonomous(name = "EOCV Right 1s0m2t", group="Main")
 public class EjaculativeLinguistics extends LinearOpMode {
     BumbleBee control;
     OpenCvWebcam webcam;

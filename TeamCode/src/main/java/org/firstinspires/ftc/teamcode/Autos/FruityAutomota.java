@@ -14,26 +14,28 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-@Autonomous(name = "FINALLEFTAUTO1+2", group="Test")
-public class AUTOLEFT12 extends LinearOpMode {
+@Autonomous(name = "EOCV Left 1s0m2t", group="Main")
+public class FruityAutomota extends LinearOpMode {
     BumbleBee control;
     OpenCvWebcam webcam;
     public static int n_cycles = 2;
-    public static int angle = -90;
+    public static int angle = -85;
     public static int angle2 = 0;
     public static int zone = 1;
-    public static int dist1 = 9;
-    public static int dist2 = 60;
-    public static int dist3 = 22;
-    public static int dist4 = 49;
-    public static int dist5 = 51;
-    public static int height1 = 110;
+    public static int dist0 = 8;
+    public static int dist1 = 0;
+    public static int dist2 = 58;
+    public static int dist3 = 20;
+    public static int dist4 = 42;
+    public static int dist5 = 57;
+    public static int height1 = 175;
     public static boolean pushCone = true;
     public static boolean cycle = true;
 
 
     @Override
     public void runOpMode() {
+        // --------------------------- INITIALIZATION ------------------------
         control = new BumbleBee(hardwareMap, this, telemetry);
 
         control.clawClose();
@@ -62,7 +64,7 @@ public class AUTOLEFT12 extends LinearOpMode {
         });
 
         waitForStart();
-        //camera sees the mf colors
+        // ----------------------------- READ SLEEVE (2s) ------------------------------
         SleeveDetectPipeline.DetectedColor color = pipeline.getDetectedColor();
         telemetry.addData("Detected color", color);
         telemetry.update();
@@ -79,37 +81,46 @@ public class AUTOLEFT12 extends LinearOpMode {
         }
         webcam.stopStreaming();
         webcam.stopRecordingPipeline();
-//camera done seeing colors :(
 
-        control.forward(11, 250);
+        telemetry.addData("Found zone", zone);
+        telemetry.update();
+        // --------------------------- DEPOSIT ON SHORT --------------------------
+        control.forward(dist0, 250);
         control.setSlidePos(BumbleBee.SHORTPOLE);
         sleep(500);
+        telemetry.addData("Status", "Depositing on short");
+        telemetry.update();
         control.setSwivel(0.92);
         control.setLift(0);
-        sleep(1000);
+        sleep(800);
         control.clawOpen();
         sleep(500);
-        control.setSwivel(0.66);
+        control.setSwivel(0.666);
         control.setSlidePos(BumbleBee.GROUND);
         sleep(500);
-
+        // ------------------------- PUSH SIGNAL CONE AWAY -----------------------
         if (! pushCone) return;
-        // grab signal cone and move it forward and move to stack
+        telemetry.addData("Status", "Pushing signal cone");
+        telemetry.update();
         control.forward(dist1, 500);
         sleep(300);
         control.forward(dist2, 500);
-        sleep(300);
+        sleep(600);
         control.setLift(1);
         control.rotate(angle);
         sleep(500);
         control.forward(dist3, 400);
         sleep(500);
-
+        // ----------------------------- CYCLES ---------------------------
         if (! cycle) return;
-        // cycle
+        telemetry.addData("Status", "Cycling");
+        telemetry.update();
         control.setLift(0);
         sleep(500);
         for(int i=0; i<n_cycles; i++) {
+            telemetry.addData("Iteration", i);
+            telemetry.update();
+            // grab cone
             control.setSlidePos(height1-(i*30));
             sleep(800);
             control.clawClose();
@@ -118,43 +129,39 @@ public class AUTOLEFT12 extends LinearOpMode {
             sleep(100);
             control.setLift(1);
             sleep(800);
+            // go to pole
             control.backward(dist4, 400);
             sleep(800);
             control.setSlidePos(BumbleBee.TALLPOLE);
             sleep(800);
-            control.setSwivel(0.90);
+            // drop cone
+            control.setSwivel(0.92);
             sleep(600);
             control.setLift(0);
             sleep(1200);
             control.clawOpen();
             sleep(500);
             control.setSwivel(0.66);
-            if (i==n_cycles-1) {
-            }
-            else {
+            if (i < n_cycles-1) {
                 control.forward(dist5, 400);
                 sleep(500);
             }
         }
         control.setSlidePos(BumbleBee.GROUND);
+        // ----------------------------- PARK --------------------------------
+        telemetry.addData("Status", "Parking in zone "+zone);
+        telemetry.update();
 
-        // park
-        //control.right(56*(zone-1), 200);
+        if (zone==1) control.forward(57,400);
+        else if (zone==2) control.forward(25,400);
+        else control.backward(4,400);
 
-        if (zone==1){
-            control.forward(58,400);
-        }
-        else if (zone==2){
-            control.forward(26,400);
-        }
-        else{
-            control.backward(4,400);
-        }
         sleep(100);
         control.setLift(1);
-        sleep(100);
+        sleep(200);
 
-        telemetry.addData("Status", "completed");
+        // ------------------------------- END ------------------------------
+        telemetry.addData("Status", "Completed");
         telemetry.update();
         sleep(2000);
     }

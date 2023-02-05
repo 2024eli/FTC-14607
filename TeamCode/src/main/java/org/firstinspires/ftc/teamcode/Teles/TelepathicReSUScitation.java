@@ -97,7 +97,7 @@ public class TelepathicReSUScitation extends LinearOpMode {
         else if(gamepad.dpad_down) fastSlides = false;
         int SLIDE_UP_VELO = (int)(1000 * (fastSlides ? 1:0.6));
         int SLIDE_DOWN_VELO = (int)(-800 * (fastSlides ? 1:0.45));
-        // trigger: continuous
+        // joystick: continuous
         if (up>0 || down>0) {
             if(up>0 && slidePos >= BumbleBee.SLIDETOP-30) control.setSlidePos(BumbleBee.SLIDETOP);
             else if(down>0 && slidePos <= BumbleBee.SLIDEBOTTOM+30) control.setSlidePos(BumbleBee.SLIDEBOTTOM);
@@ -158,7 +158,7 @@ public class TelepathicReSUScitation extends LinearOpMode {
         else if (gamepad.right_bumper) swivelPos += 0.01;
         else if (gamepad.left_bumper) swivelPos -= 0.01;
         // dont swivel into the robot
-        swivelPos = (lastSlidePos > 100) ?
+        swivelPos = (lastSlidePos > 250) ?
                 Range.clip(swivelPos, 0.4, 0.92):
                 Range.clip(swivelPos, 0.56, 0.75);
         control.setSwivel(swivelPos);

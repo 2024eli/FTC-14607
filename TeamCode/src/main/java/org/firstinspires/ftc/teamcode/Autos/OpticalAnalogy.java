@@ -18,7 +18,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-@Autonomous(name = "TF Vision Auto right",group="Main")
+@Autonomous(name = "TF Right 1s0m0t",group="MzBackup")
 public class OpticalAnalogy extends LinearOpMode {
     BumbleBee control;
 
