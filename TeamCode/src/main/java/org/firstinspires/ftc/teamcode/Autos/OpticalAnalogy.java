@@ -39,6 +39,10 @@ public class OpticalAnalogy extends LinearOpMode {
 
     private TFObjectDetector tfod; // object detection on the sleeve only
 
+    public static int dist1 = 10,
+            dist2 = 38,
+            dist3 = 39, dist4 = -4, dist5 = -40;
+
     @Override
     public void runOpMode() {
         control = new BumbleBee(hardwareMap, this, telemetry);
@@ -97,8 +101,7 @@ public class OpticalAnalogy extends LinearOpMode {
         telemetry.addData("Found zone", zone);
         telemetry.update();
 
-        // deposit cone to short pole
-        control.forward(12, 250);
+        control.forward(dist1, 200);
         control.setSlidePos(BumbleBee.SHORTPOLE);
         sleep(500);
         control.setSwivel(0.4);
@@ -107,29 +110,22 @@ public class OpticalAnalogy extends LinearOpMode {
         control.clawOpen();
         sleep(500);
         control.setSwivel(0.66);
-        control.setLift(1);
-        control.clawClose();
         sleep(500);
         control.setSlidePos(BumbleBee.GROUND);
-
         // move around signal cone
-        control.backward(11, 250);
-        sleep(500);
-        control.left(59,200);
-        sleep(500);
-        control.forward(49, 250);
-        sleep(500);
-
+        control.forward(dist2, 200);
+        control.rotate(90);
+        control.setLift(1);
         // park
-        //control.right(56*(zone-1), 200);
         switch (zone) {
-            case 1:
+            case 3:
+                control.forward(dist3, 200);
                 break;
             case 2:
-                control.right(58, 200);
+                control.forward(dist4, 200);
                 break;
-            case 3:
-                control.right(140, 200);
+            case 1:
+                control.forward(dist5, 200);
                 break;
         }
     }

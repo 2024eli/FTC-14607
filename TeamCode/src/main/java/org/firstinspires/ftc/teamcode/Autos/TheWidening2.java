@@ -18,9 +18,9 @@ import org.openftc.easyopencv.OpenCvWebcam;
 public class TheWidening2 extends LinearOpMode {
     BumbleBee control;
     OpenCvWebcam webcam;
-    public static int dist1 = 9,
-                        dist2 = 37,
-    dist3 = 40, dist4 = -4, dist5 = -40;
+    public static int dist1 = 10,
+                        dist2 = 38,
+    dist3 = 40, dist4 = -4, dist5 = -37;
 
     @Override
     public void runOpMode() {
@@ -85,13 +85,12 @@ public class TheWidening2 extends LinearOpMode {
         control.clawOpen();
         sleep(500);
         control.setSwivel(0.66);
-        control.setLift(1);
-        control.clawClose();
         sleep(500);
         control.setSlidePos(BumbleBee.GROUND);
         // move around signal cone
         control.forward(dist2, 200);
         control.rotate(-90);
+        control.setLift(1);
         // park
         switch (zone) {
             case 1:
@@ -104,6 +103,6 @@ public class TheWidening2 extends LinearOpMode {
                 control.forward(dist5, 200);
                 break;
         }
-
+        sleep(1000);
     }
 }

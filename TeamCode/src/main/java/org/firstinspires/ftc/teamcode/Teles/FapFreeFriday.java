@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.teamcode.Robots.BumbleBee;
+import org.firstinspires.ftc.teamcode.Robots.BumbleBee2;
 
 @Config
 @TeleOp(name = "test tele2", group="Test")
@@ -18,7 +19,7 @@ public class FapFreeFriday extends LinearOpMode {
         DcMotorEx leftS = hardwareMap.get(DcMotorEx.class, "LeftSlide");
         DcMotorEx rightS = hardwareMap.get(DcMotorEx.class, "RightSlide");
 
-        BumbleBee control = new BumbleBee(hardwareMap, this, telemetry);
+        BumbleBee2 control = new BumbleBee2(hardwareMap, this, telemetry);
         //lS.setPositionPIDFCoefficients(10.0);
         //lS.setVelocityPIDFCoefficients(10.0, 0.05, 0.0, 0.0);
         //lS.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(10, 0.05, 0.0, 0.0));
@@ -30,7 +31,7 @@ public class FapFreeFriday extends LinearOpMode {
         telemetry.addData("Rotating to", angle);
         telemetry.update();
 
-        control.rotate(angle);
+        control.forward(60,200);
 
         telemetry.addLine("completed");
         telemetry.update();

@@ -24,10 +24,10 @@ public class EjaculativeLinguistics extends LinearOpMode {
     public static int zone = 1;
     public static int dist1 = 9;
     public static int dist2 = 60;
-    public static int dist3 = 22;
+    public static int dist3 = 21;
     public static int dist4 = 49;
-    public static int dist5 = 51;
-    public static int height1 = 110;
+    public static int dist5 = 48;
+    public static int height1 = 130;
     public static boolean pushCone = true;
     public static boolean cycle = true;
 
