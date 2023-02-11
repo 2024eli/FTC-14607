@@ -17,8 +17,6 @@ import org.openftc.easyopencv.OpenCvWebcam;
 @Autonomous(name = "test auto1", group="Test")
 public class PenetratingPerpetrator extends LinearOpMode {
     BumbleBee control;
-    OpenCvWebcam webcam;
-    public static int SPEED = 100;
     public static int DISTANCE = 60;
 
     @Override
@@ -33,9 +31,12 @@ public class PenetratingPerpetrator extends LinearOpMode {
         waitForStart();
         telemetry.addData("Status", "running");
         telemetry.update();
+
         control.forwardExp(DISTANCE);
-        control.brake();
-        sleep(300);
+
+        sleep(1000);
+        control.forwardExp(-DISTANCE);
+
         telemetry.addData("Status", "completed");
         telemetry.update();
         sleep(2000);

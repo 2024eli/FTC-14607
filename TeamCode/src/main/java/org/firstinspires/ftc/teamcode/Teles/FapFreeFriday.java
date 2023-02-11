@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Teles;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.teamcode.Robots.BumbleBee;
@@ -21,7 +22,11 @@ public class FapFreeFriday extends LinearOpMode {
         //lS.setPositionPIDFCoefficients(10.0);
         //lS.setVelocityPIDFCoefficients(10.0, 0.05, 0.0, 0.0);
         //lS.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(10, 0.05, 0.0, 0.0));
+        telemetry.addData("Pos coefficients", control.frontRight.getPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION));
+        telemetry.addData("velo coefficients", control.frontRight.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
+        telemetry.update();
         waitForStart();
+        telemetry.addData("Current angle", -control.imu.getAngularOrientation().firstAngle);
         telemetry.addData("Rotating to", angle);
         telemetry.update();
 

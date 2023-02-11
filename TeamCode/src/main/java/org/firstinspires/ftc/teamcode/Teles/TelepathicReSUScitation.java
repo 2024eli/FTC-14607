@@ -119,9 +119,9 @@ public class TelepathicReSUScitation extends LinearOpMode {
             int setPos = lastSlidePos;
             slideDirection = 0;
             movingSlide = true;
-            if (gamepad.x) {setPos = BumbleBee.TALLPOLE; control.setLift(0.3); } // raise lift when setting to pole height
-            else if (gamepad.y) {setPos = BumbleBee.MEDIUMPOLE; control.setLift(0.3);}
-            else if (gamepad.b) {setPos = BumbleBee.SHORTPOLE; control.setLift(0.3);}
+            if (gamepad.x) {setPos = BumbleBee.TALLPOLE; control.setLift(0.7); } // raise lift when setting to pole height
+            else if (gamepad.y) {setPos = BumbleBee.MEDIUMPOLE; control.setLift(0.7);}
+            else if (gamepad.b) {setPos = BumbleBee.SHORTPOLE; control.setLift(0.7);}
             else if (gamepad.a || movingToGround) {setPos = BumbleBee.GROUND; }
             else {movingSlide = false; }
             // stop moving to ground if reached it

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Autos;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -12,10 +13,14 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvWebcam;
 
+@Config
 @Autonomous(name = "EOCV Left 1s0m0t", group="Main")
 public class TheWidening2 extends LinearOpMode {
     BumbleBee control;
     OpenCvWebcam webcam;
+    public static int dist1 = 9,
+                        dist2 = 37,
+    dist3 = 40, dist4 = -4, dist5 = -40;
 
     @Override
     public void runOpMode() {
@@ -57,12 +62,11 @@ public class TheWidening2 extends LinearOpMode {
         sleep(3000);
 
         int zone = 0;
-        SleeveDetectPipeline.DetectedColor DetectedColor;
         if(color == SleeveDetectPipeline.DetectedColor.YELLOW) {
             zone = 1;
         } else if(color == SleeveDetectPipeline.DetectedColor.GREEN) {
             zone = 2;
-        } else{
+        } else {
             zone = 3;
         }
         if (zone != 0){
@@ -72,7 +76,7 @@ public class TheWidening2 extends LinearOpMode {
         }
 
         // deposit on short pole
-        control.forward(12, 250);
+        control.forward(dist1, 200);
         control.setSlidePos(BumbleBee.SHORTPOLE);
         sleep(500);
         control.setSwivel(0.92);
@@ -86,14 +90,20 @@ public class TheWidening2 extends LinearOpMode {
         sleep(500);
         control.setSlidePos(BumbleBee.GROUND);
         // move around signal cone
-        control.backward(11, 250);
-        sleep(500);
-        control.right(59,200);
-        sleep(500);
-        control.forward(50, 250);
-        sleep(500);
+        control.forward(dist2, 200);
+        control.rotate(-90);
         // park
-        control.left(56*(3-zone), 200);
+        switch (zone) {
+            case 1:
+                control.forward(dist3, 200);
+                break;
+            case 2:
+                control.forward(dist4, 200);
+                break;
+            case 3:
+                control.forward(dist5, 200);
+                break;
+        }
 
     }
 }

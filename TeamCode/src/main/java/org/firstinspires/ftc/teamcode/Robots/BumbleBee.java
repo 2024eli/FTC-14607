@@ -21,7 +21,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
  * 2022-2023 PowerPlay v1 Robot
  */
 @Config
-public class BumbleBee extends RobotBase {
+public class BumbleBee extends RobotBaseOld {
     // interactors
     public Servo claw, lift, swivel;
     public DcMotorEx rightSlide, leftSlide;
@@ -85,28 +85,6 @@ public class BumbleBee extends RobotBase {
 
     // --------------------------------- MOVEMENT METHODS ------------------------------------------
 
-    // rotate using power
-    public void rotateP(double degrees) {
-        double motorSpeed = 500;
-        if(degrees < 0) motorSpeed = -motorSpeed;
-        float lastAngle = imu.getAngularOrientation().firstAngle;
-        degrees += lastAngle;
-        headingPIDFController.reset();
-        headingPIDFController.setSetPoint(degrees);
-        setRunMode(drivetrain, DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-        do {
-            lastAngle = imu.getAngularOrientation().firstAngle;
-            motorSpeed = 0.01 * headingPIDFController.calculate(lastAngle);
-            frontRight.setPower(-motorSpeed);
-            frontLeft.setPower(motorSpeed);
-            backRight.setPower(-motorSpeed);
-            backLeft.setPower(motorSpeed);
-
-        } while (!headingPIDFController.atSetPoint());
-        //make sure motors stop
-        for(DcMotorEx m : drivetrain) m.setPower(0);
-        headingPIDFController.reset();
-    }
 
     // ------------------------------------ INTERACTOR METHODS -------------------------------------
 
