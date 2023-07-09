@@ -44,7 +44,9 @@ public class TelepathicReSUScitation extends LinearOpMode {
      * @return driveTrainPowers, an array of all the powers the drivetrain is set to (FL, BL, FR, BR)
      */
     public float[] moveDriveTrain(@NonNull Gamepad gamepad, @NonNegative float speedFactor) {
-        float fbinput = gamepad.left_stick_y;
+        //control.drivetrain represents all 4 wheels below?
+        //control.frontLEft, backLeft, frontRight, backRight ... represent
+        float fbinput = gamepad.left_stick_y; //either input is analog of digital based on which piece of gamepad is pressed
         if(gamepad.dpad_up) fbinput = 1;
         else if(gamepad.dpad_down) fbinput = -1;
 
