@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Teles;
 
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -8,18 +9,24 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.Robots.BumbleBee;
 
+import java.util.ArrayList;
+
 @TeleOp(name = "GamePadTest", group = "Test")
 public class GamepadTest extends OpMode {
+    //DriveTrain
     private DcMotor leftFrontDrive = null;
     private DcMotor leftBackDrive = null;
     private DcMotor rightFrontDrive = null;
     private DcMotor rightBackDrive = null;
+    private ArrayList<DcMotor> driveTrain = new ArrayList<>(); //Holds on to all the motors above so i can easily do operations on all
 
     //Driving Variables
     final float driveMagnitude = 2; //scales the inputs from gamepad left joystick for drivemotors
 
     @Override
     public void init(){ //if "init" is pressed, this function runs once
+        telemetry.log().add("...Initializing...");
+
         //Initializing DriveTrain (omni wheels)
         leftFrontDrive  = hardwareMap.get(DcMotor.class, "left_front_drive");
         leftBackDrive  = hardwareMap.get(DcMotor.class, "left_back_drive");
@@ -31,8 +38,12 @@ public class GamepadTest extends OpMode {
         rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
 
-        telemetry.addData("Status", "Initialized DriveTrain");
-        telemetry.update();
+        driveTrain.add(leftBackDrive);
+        driveTrain.add(leftBackDrive);
+        driveTrain.add(rightFrontDrive);
+        driveTrain.add(rightBackDrive);
+
+        telemetry.log().add("...Initialized DriveTrain...");
     }
 
     public void logGamepadInfo(){
@@ -94,7 +105,7 @@ public class GamepadTest extends OpMode {
 
     @Override
     public void stop(){
-        telemetry.addLine("Programming Ending...");
+        telemetry.log().add("...ending...");
         telemetry.update();
     }
 }
